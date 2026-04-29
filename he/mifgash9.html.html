@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מפגש 9 — Thaler Capital Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;700;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --cream: #f5f0e8;
+    --warm-gray: #b8b0a2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    font-family: 'Heebo', sans-serif;
+    color: var(--cream);
+    overflow: hidden;
+    height: 100vh; width: 100vw;
+  }
+
+  .deck { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 60px 80px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: all; }
+
+  .logo-badge {
+    position: fixed; top: 28px; right: 40px;
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 13px; color: var(--gold);
+    letter-spacing: 1px; opacity: 0.7; z-index: 100;
+  }
+  .session-badge {
+    position: fixed; top: 28px; left: 40px;
+    font-size: 11px; letter-spacing: 3px;
+    color: rgba(201,168,76,0.5); text-transform: uppercase; z-index: 100;
+  }
+  .slide-num {
+    position: fixed; bottom: 36px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 10px; z-index: 100;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(201,168,76,0.3); cursor: pointer; transition: background 0.3s;
+  }
+  .dot.active { background: var(--gold); }
+  .nav {
+    position: fixed; top: 50%; transform: translateY(-50%);
+    background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25);
+    color: var(--gold); width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 20px; transition: all 0.3s; z-index: 100;
+  }
+  .nav:hover { background: rgba(201,168,76,0.25); }
+  .nav.prev { right: 24px; }
+  .nav.next { left: 24px; }
+  .hint {
+    position: fixed; bottom: 28px; right: 40px;
+    font-size: 11px; color: rgba(184,176,162,0.3); letter-spacing: 1px;
+  }
+  .label {
+    font-size: 11px; letter-spacing: 4px; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 16px;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SLIDE 1 — אינפלציה ── */
+  #s1 { background: radial-gradient(ellipse at 40% 55%, #162030 0%, var(--navy) 70%); }
+  #s1 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(28px, 4vw, 52px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s1 h2 span { color: var(--gold); }
+  #s1 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 500px; line-height: 1.7; margin-bottom: 40px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s1 .inflation-table {
+    width: 100%; max-width: 540px;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s1 .inf-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    padding: 13px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 14px; align-items: center;
+  }
+  #s1 .inf-row.header {
+    font-size: 11px; letter-spacing: 2px; color: var(--gold);
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  #s1 .inf-row .today { color: var(--warm-gray); }
+  #s1 .inf-row .future { color: #e07070; font-weight: 500; }
+  #s1 .inf-note {
+    margin-top: 16px; padding: 12px 20px;
+    background: rgba(180,60,60,0.08);
+    border: 1px solid rgba(180,60,60,0.2);
+    border-radius: 10px; font-size: 13px;
+    color: var(--warm-gray); text-align: center;
+    animation: fadeUp 0.5s ease 0.5s both;
+  }
+  #s1 .inf-note strong { color: var(--cream); }
+
+  /* ── SLIDE 2 — מהו ברוקר ── */
+  #s2 { background: linear-gradient(150deg, #0d1b2a 0%, #111e2d 100%); }
+  #s2 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(28px, 4vw, 52px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s2 h2 span { color: var(--gold); }
+  #s2 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 500px; line-height: 1.7; margin-bottom: 40px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s2 .broker-flow {
+    display: flex; align-items: center; gap: 0;
+    max-width: 660px; width: 100%;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s2 .bf-box {
+    flex: 1; border-radius: 14px; padding: 22px 16px; text-align: center;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.12);
+  }
+  #s2 .bf-box .ico { font-size: 28px; margin-bottom: 10px; }
+  #s2 .bf-box h4 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 15px; color: var(--gold); margin-bottom: 6px;
+  }
+  #s2 .bf-box p { font-size: 12px; color: var(--warm-gray); line-height: 1.5; }
+  #s2 .bf-arrow {
+    font-size: 20px; color: rgba(201,168,76,0.3);
+    padding: 0 10px; flex-shrink: 0;
+  }
+  #s2 .brokers-list {
+    margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.5s ease 0.5s both;
+  }
+  #s2 .broker-tag {
+    padding: 8px 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 50px; font-size: 13px; color: var(--cream);
+  }
+
+  /* ── SLIDE 3 — Roth IRA מול IRA ── */
+  #s3 { background: radial-gradient(ellipse at 55% 40%, #162030 0%, var(--navy) 70%); }
+  #s3 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(26px, 4vw, 50px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s3 h2 span { color: var(--gold); }
+  #s3 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 480px; line-height: 1.7; margin-bottom: 40px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s3 .roth-compare {
+    display: grid; grid-template-columns: 1fr 60px 1fr;
+    max-width: 660px; width: 100%;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s3 .rc-col {
+    padding: 24px 20px; border-radius: 16px; text-align: center;
+  }
+  #s3 .rc-col.traditional {
+    background: rgba(180,120,40,0.1);
+    border: 1px solid rgba(180,120,40,0.25);
+  }
+  #s3 .rc-col.roth {
+    background: rgba(42,120,80,0.12);
+    border: 1px solid rgba(42,120,80,0.3);
+  }
+  #s3 .rc-col h3 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 17px; margin-bottom: 14px; color: var(--cream);
+  }
+  #s3 .rc-col ul { list-style: none; }
+  #s3 .rc-col ul li {
+    font-size: 13px; color: var(--warm-gray);
+    padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    line-height: 1.5;
+  }
+  #s3 .rc-col ul li:last-child { border: none; }
+  #s3 .divider {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: rgba(201,168,76,0.3);
+  }
+  #s3 .verdict {
+    margin-top: 20px; padding: 12px 24px;
+    background: rgba(42,120,80,0.1);
+    border: 1px solid rgba(42,120,80,0.25);
+    border-radius: 10px; font-size: 13px;
+    color: var(--cream); text-align: center;
+    max-width: 560px; width: 100%;
+    animation: fadeUp 0.5s ease 0.5s both;
+  }
+
+  /* ── SLIDE 4 — צעד ראשון בשטח ── */
+  #s4 { background: linear-gradient(160deg, #0d1b2a 0%, #0f2030 100%); }
+  #s4 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(26px, 4vw, 50px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s4 h2 span { color: var(--gold); }
+  #s4 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 480px; line-height: 1.7; margin-bottom: 40px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s4 .steps {
+    display: flex; flex-direction: column; gap: 12px;
+    max-width: 540px; width: 100%;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s4 .step {
+    display: flex; gap: 16px; align-items: center;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 12px; padding: 16px 20px;
+    transition: border-color 0.3s;
+  }
+  #s4 .step:hover { border-color: rgba(201,168,76,0.3); }
+  #s4 .step .num {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 24px; color: var(--gold); opacity: 0.5; min-width: 28px;
+  }
+  #s4 .step p { font-size: 14px; color: var(--cream); line-height: 1.6; }
+  #s4 .step p span { color: var(--gold-light); }
+
+  /* ── SLIDE 5 — השוואת פלטפורמות ── */
+  #s5 { background: radial-gradient(ellipse at 45% 55%, #162030 0%, var(--navy) 70%); }
+  #s5 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(26px, 4vw, 50px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s5 h2 span { color: var(--gold); }
+  #s5 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 480px; line-height: 1.7; margin-bottom: 36px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s5 .platform-table {
+    width: 100%; max-width: 620px;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s5 .pt-row {
+    display: grid; grid-template-columns: 130px 1fr 1fr;
+    padding: 13px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 13px; align-items: center; gap: 8px;
+  }
+  #s5 .pt-row.header {
+    font-size: 11px; letter-spacing: 2px; color: var(--gold);
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  #s5 .pt-row .platform { color: var(--cream); font-weight: 500; }
+  #s5 .pt-row .pro { color: #7ecfa0; font-size: 12px; }
+  #s5 .pt-row .con { color: var(--warm-gray); font-size: 12px; }
+  #s5 .pt-row.rec {
+    background: rgba(201,168,76,0.06);
+    border-radius: 8px; border-bottom: none;
+    border: 1px solid rgba(201,168,76,0.15);
+    margin-top: 4px;
+  }
+
+  /* ── SLIDE 6 — QUOTE ── */
+  #s6 { background: #0a1520; }
+  #s6::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 70%);
+  }
+  #s6 .quote-mark {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 120px; color: rgba(201,168,76,0.12);
+    line-height: 0.8; margin-bottom: -10px;
+    align-self: flex-start; z-index: 1;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+  #s6 blockquote {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(18px, 2.8vw, 32px);
+    font-weight: 400; line-height: 1.65;
+    text-align: center; color: var(--cream);
+    max-width: 680px; position: relative; z-index: 1;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+  #s6 .gold-line {
+    width: 60px; height: 1px; background: var(--gold);
+    opacity: 0.4; margin: 24px auto 0; z-index: 1;
+    animation: fadeUp 0.5s ease 0.4s both;
+  }
+  #s6 .author {
+    margin-top: 16px; font-size: 13px;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold); opacity: 0.8;
+    position: relative; z-index: 1;
+    animation: fadeUp 0.5s ease 0.5s both;
+  }
+</style>
+</head>
+<body>
+
+<div class="logo-badge">THALER CAPITAL MANAGEMENT</div>
+<div class="session-badge">מפגש 9</div>
+
+<div class="deck">
+
+  <!-- SLIDE 1 — אינפלציה -->
+  <div class="slide active" id="s1">
+    <div class="label">מפגש 9 · שקף 1</div>
+    <h2>האינפלציה —<br><span>הגנב השקט</span></h2>
+    <p class="sub">כסף שיושב בלי לעבוד מפסיד ערך כל שנה — גם אם היתרה לא זזה.</p>
+    <div class="inflation-table">
+      <div class="inf-row header">
+        <span>סכום</span>
+        <span>ערך היום</span>
+        <span>ערך בעוד 20 שנה (3%)</span>
+      </div>
+      <div class="inf-row">
+        <span>$10,000</span>
+        <span class="today">$10,000</span>
+        <span class="future">~$5,537</span>
+      </div>
+      <div class="inf-row">
+        <span>$50,000</span>
+        <span class="today">$50,000</span>
+        <span class="future">~$27,684</span>
+      </div>
+      <div class="inf-row">
+        <span>$100,000</span>
+        <span class="today">$100,000</span>
+        <span class="future">~$55,368</span>
+      </div>
+    </div>
+    <div class="inf-note">
+      <strong>לא להשקיע = להפסיד.</strong> מתחת למזרון זה לא בטוח — זה הפסד ודאי.
+    </div>
+  </div>
+
+  <!-- SLIDE 2 — מהו ברוקר -->
+  <div class="slide" id="s2">
+    <div class="label">מפגש 9 · שקף 2</div>
+    <h2>איך <span>קונים מניה</span>?</h2>
+    <p class="sub">פעם זה היה מסובך ויקר. היום — פתיחת חשבון לוקחת 10 דקות ועולה $0.</p>
+    <div class="broker-flow">
+      <div class="bf-box">
+        <div class="ico">🙋</div>
+        <h4>אתה</h4>
+        <p>רוצה לקנות ETF על S&P 500</p>
+      </div>
+      <div class="bf-arrow">←</div>
+      <div class="bf-box">
+        <div class="ico">🏛️</div>
+        <h4>ברוקר</h4>
+        <p>מתווך בינך לבין הבורסה — מחזיק את הנכסים שלך</p>
+      </div>
+      <div class="bf-arrow">←</div>
+      <div class="bf-box">
+        <div class="ico">📈</div>
+        <h4>הבורסה</h4>
+        <p>NYSE / NASDAQ — שם מתבצעת הקנייה בפועל</p>
+      </div>
+    </div>
+    <div class="brokers-list">
+      <div class="broker-tag">Fidelity</div>
+      <div class="broker-tag">Charles Schwab</div>
+      <div class="broker-tag">Vanguard</div>
+      <div class="broker-tag">Robinhood</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 — Roth IRA מול IRA -->
+  <div class="slide" id="s3">
+    <div class="label">מפגש 9 · שקף 3</div>
+    <h2>Roth IRA מול <span>IRA רגיל</span></h2>
+    <p class="sub">שאלה אחת מכריעה: עדיף לשלם מס על הזרע — או על הקציר?</p>
+    <div class="roth-compare">
+      <div class="rc-col traditional">
+        <h3>Traditional IRA</h3>
+        <ul>
+          <li>מפקיד כסף לפני מס</li>
+          <li>חוסך מס עכשיו</li>
+          <li>משלם מס בפרישה</li>
+          <li>מתאים: הכנסה גבוהה היום</li>
+        </ul>
+      </div>
+      <div class="divider">⟷</div>
+      <div class="rc-col roth">
+        <h3>Roth IRA</h3>
+        <ul>
+          <li>מפקיד כסף אחרי מס</li>
+          <li>משלם מס עכשיו</li>
+          <li>משיכה בפרישה — פטורה</li>
+          <li>מתאים: הכנסה נמוכה היום</li>
+        </ul>
+      </div>
+    </div>
+    <div class="verdict">✦ לרוב הלקוחות שלנו — Roth IRA עדיף. הכסף גדל 30 שנה בלי מס.</div>
+  </div>
+
+  <!-- SLIDE 4 — צעד ראשון -->
+  <div class="slide" id="s4">
+    <div class="label">מפגש 9 · שקף 4</div>
+    <h2>פתיחת חשבון ברוקר —<br><span>צעד אחר צעד</span></h2>
+    <p class="sub">10 דקות. ללא עמלה. ללא מינימום. אין סיבה לדחות.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <p>כנס לאתר הברוקר שבחרת — <span>Fidelity / Schwab / Vanguard</span></p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <p>בחר <span>"Open an Account"</span> ← Roth IRA או Brokerage Account</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <p>מלא פרטים אישיים + <span>SSN</span> + מקור הכנסה</p>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <p>חבר חשבון בנק וקבע <span>הפקדה חודשית אוטומטית</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 — השוואת פלטפורמות -->
+  <div class="slide" id="s5">
+    <div class="label">מפגש 9 · שקף 5</div>
+    <h2>איזה ברוקר <span>מתאים לך</span>?</h2>
+    <p class="sub">כולם חינמיים. ההבדל הוא בממשק ובשירות.</p>
+    <div class="platform-table">
+      <div class="pt-row header">
+        <span>פלטפורמה</span>
+        <span>יתרון עיקרי</span>
+        <span>מתאים ל</span>
+      </div>
+      <div class="pt-row">
+        <span class="platform">Fidelity</span>
+        <span class="pro">שירות לקוחות מעולה, כלים מקיפים</span>
+        <span class="con">משקיעים לטווח ארוך</span>
+      </div>
+      <div class="pt-row">
+        <span class="platform">Charles Schwab</span>
+        <span class="pro">ETF פנימיים ללא עמלה</span>
+        <span class="con">מי שרוצה כל הכלים במקום אחד</span>
+      </div>
+      <div class="pt-row">
+        <span class="platform">Vanguard</span>
+        <span class="pro">הממציא של קרנות המדד</span>
+        <span class="con">משקיעים ממוקדי index funds</span>
+      </div>
+      <div class="pt-row rec">
+        <span class="platform">Robinhood</span>
+        <span class="pro">ממשק פשוט וגמיש</span>
+        <span class="con">מתחילים שרוצים להתחיל מהר</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 — QUOTE -->
+  <div class="slide" id="s6">
+    <div class="quote-mark">"</div>
+    <blockquote>הזמן הטוב ביותר לשתול עץ היה לפני עשרים שנה. הזמן הטוב הבא — הוא עכשיו.</blockquote>
+    <div class="gold-line"></div>
+    <div class="author">פתגם סיני</div>
+  </div>
+
+  <!-- SLIDE 7 — שיעורי בית -->
+  <div class="slide" id="s7">
+    <div class="label">מפגש 9 · שיעורי בית</div>
+    <h2 style="font-family:'Frank Ruhl Libre',serif;font-size:clamp(26px,4vw,48px);text-align:center;margin-bottom:14px;animation:fadeUp 0.5s ease 0.2s both;">לפתוח חשבון <span style="color:var(--gold)">ברוקר</span></h2>
+    <p style="color:var(--warm-gray);font-size:15px;text-align:center;max-width:480px;line-height:1.7;margin-bottom:40px;animation:fadeUp 0.5s ease 0.3s both;">השבוע עוברים מתיאוריה למציאות — חשבון פתוח ומוכן לפעולה.</p>
+    <div style="display:flex;flex-direction:column;gap:14px;max-width:540px;width:100%;animation:fadeUp 0.6s ease 0.4s both;">
+      <div style="display:flex;gap:16px;align-items:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:'Frank Ruhl Libre',serif;font-size:22px;color:var(--gold);opacity:0.6;min-width:28px;">1</div>
+        <div>
+          <div style="font-size:15px;color:var(--cream);margin-bottom:6px;font-weight:500;">לפתוח חשבון ברוקר</div>
+          <div style="font-size:13px;color:var(--warm-gray);line-height:1.6;">Fidelity, Schwab, או Vanguard — לבחור אחד ולפתוח. Roth IRA אם הכנסה מאפשרת.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:'Frank Ruhl Libre',serif;font-size:22px;color:var(--gold);opacity:0.6;min-width:28px;">2</div>
+        <div>
+          <div style="font-size:15px;color:var(--cream);margin-bottom:6px;font-weight:500;">לחבר חשבון בנק</div>
+          <div style="font-size:13px;color:var(--warm-gray);line-height:1.6;">לחבר את חשבון החיסכון — אבל עדיין לא להפקיד. נעשה את זה יחד במפגש האחרון.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:'Frank Ruhl Libre',serif;font-size:22px;color:var(--gold);opacity:0.6;min-width:28px;">3</div>
+        <div>
+          <div style="font-size:15px;color:var(--cream);margin-bottom:6px;font-weight:500;">לשלוח אישור פתיחה</div>
+          <div style="font-size:13px;color:var(--warm-gray);line-height:1.6;">צילום מסך של החשבון הפתוח — כדי שנוכל להיכנס למפגש 10 מוכנים לפעולה.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="nav prev" onclick="changeSlide(1)">›</button>
+<button class="nav next" onclick="changeSlide(-1)">‹</button>
+<div class="slide-num" id="dots"></div>
+<div class="hint">← → לניווט</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dotsEl.children[current].classList.add('active');
+  }
+
+  function changeSlide(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') changeSlide(1);
+    if (e.key === 'ArrowRight') changeSlide(-1);
+  });
+
+  let startX = 0;
+  document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+  });
+</script>
+</body>
+</html>

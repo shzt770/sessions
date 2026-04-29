@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מפגש 8 — Thaler Capital Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;700;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --cream: #f5f0e8;
+    --warm-gray: #b8b0a2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    font-family: 'Heebo', sans-serif;
+    color: var(--cream);
+    overflow: hidden;
+    height: 100vh; width: 100vw;
+  }
+
+  .deck { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 60px 80px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: all; }
+
+  .logo-badge {
+    position: fixed; top: 28px; right: 40px;
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 13px; color: var(--gold);
+    letter-spacing: 1px; opacity: 0.7; z-index: 100;
+  }
+  .session-badge {
+    position: fixed; top: 28px; left: 40px;
+    font-size: 11px; letter-spacing: 3px;
+    color: rgba(201,168,76,0.5); text-transform: uppercase; z-index: 100;
+  }
+  .slide-num {
+    position: fixed; bottom: 36px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 10px; z-index: 100;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(201,168,76,0.3); cursor: pointer; transition: background 0.3s;
+  }
+  .dot.active { background: var(--gold); }
+  .nav {
+    position: fixed; top: 50%; transform: translateY(-50%);
+    background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25);
+    color: var(--gold); width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 20px; transition: all 0.3s; z-index: 100;
+  }
+  .nav:hover { background: rgba(201,168,76,0.25); }
+  .nav.prev { right: 24px; }
+  .nav.next { left: 24px; }
+  .hint {
+    position: fixed; bottom: 28px; right: 40px;
+    font-size: 11px; color: rgba(184,176,162,0.3); letter-spacing: 1px;
+  }
+  .label {
+    font-size: 11px; letter-spacing: 4px; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 16px;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SLIDE 1 — השקעות זה לא הימורים ── */
+  #s1 { background: radial-gradient(ellipse at 40% 55%, #162030 0%, var(--navy) 70%); }
+  #s1 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(28px, 4vw, 52px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s1 h2 span { color: var(--gold); }
+  #s1 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 500px; line-height: 1.7; margin-bottom: 44px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s1 .compare {
+    display: grid; grid-template-columns: 1fr 60px 1fr;
+    max-width: 660px; width: 100%;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s1 .col {
+    padding: 26px 22px; border-radius: 16px; text-align: center;
+  }
+  #s1 .col.gamble {
+    background: rgba(180,60,60,0.1);
+    border: 1px solid rgba(180,60,60,0.25);
+  }
+  #s1 .col.invest {
+    background: rgba(42,120,80,0.12);
+    border: 1px solid rgba(42,120,80,0.3);
+  }
+  #s1 .col .ico { font-size: 32px; margin-bottom: 12px; }
+  #s1 .col h3 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 17px; margin-bottom: 10px; color: var(--cream);
+  }
+  #s1 .col ul { list-style: none; }
+  #s1 .col ul li {
+    font-size: 13px; color: var(--warm-gray);
+    padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  #s1 .col ul li:last-child { border: none; }
+  #s1 .divider {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: rgba(201,168,76,0.3);
+  }
+
+  /* ── SLIDE 2 — ריבית דריבית ── */
+  #s2 { background: linear-gradient(150deg, #0d1b2a 0%, #111e2d 100%); }
+  #s2 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(28px, 4vw, 52px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s2 h2 span { color: var(--gold); }
+  #s2 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 480px; line-height: 1.7; margin-bottom: 36px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s2 .compound-table {
+    width: 100%; max-width: 560px;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s2 .ct-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    padding: 13px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 14px; align-items: center;
+  }
+  #s2 .ct-row.header {
+    font-size: 11px; letter-spacing: 2px; color: var(--gold);
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  #s2 .ct-row .invested { color: var(--warm-gray); }
+  #s2 .ct-row .value { color: var(--gold-light); font-weight: 600; }
+  #s2 .ct-row.highlight {
+    background: rgba(201,168,76,0.08);
+    border-radius: 8px;
+    border-bottom: none;
+  }
+  #s2 .disclaimer {
+    font-size: 11px; color: rgba(184,176,162,0.4);
+    text-align: center; margin-top: 12px; font-style: italic;
+    animation: fadeUp 0.5s ease 0.5s both;
+  }
+
+  /* ── SLIDE 3 — היסטוריה של הבורסה ── */
+  #s3 { background: radial-gradient(ellipse at 55% 45%, #162030 0%, var(--navy) 70%); }
+  #s3 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(26px, 4vw, 50px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s3 h2 span { color: var(--gold); }
+  #s3 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 500px; line-height: 1.7; margin-bottom: 36px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s3 .history-list {
+    display: flex; flex-direction: column; gap: 10px;
+    max-width: 580px; width: 100%;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s3 .h-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px;
+  }
+  #s3 .h-item .event { font-size: 13px; color: var(--warm-gray); }
+  #s3 .h-item .result { font-size: 13px; color: var(--gold-light); font-weight: 500; }
+  #s3 .conclusion {
+    margin-top: 16px; padding: 14px 24px;
+    background: rgba(42,120,80,0.1);
+    border: 1px solid rgba(42,120,80,0.25);
+    border-radius: 12px; font-size: 14px;
+    color: var(--cream); text-align: center;
+    max-width: 560px; width: 100%;
+    animation: fadeUp 0.5s ease 0.5s both;
+  }
+
+  /* ── SLIDE 4 — מילים מפחידות ── */
+  #s4 { background: linear-gradient(160deg, #0d1b2a 0%, #0f2030 100%); }
+  #s4 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(26px, 4vw, 50px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s4 h2 span { color: var(--gold); }
+  #s4 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 480px; line-height: 1.7; margin-bottom: 36px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s4 .terms {
+    display: flex; flex-direction: column; gap: 10px;
+    max-width: 580px; width: 100%;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s4 .term-row {
+    display: grid; grid-template-columns: 120px 1fr;
+    gap: 16px; align-items: center;
+    padding: 14px 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.1);
+    border-radius: 10px;
+    transition: border-color 0.3s;
+  }
+  #s4 .term-row:hover { border-color: rgba(201,168,76,0.3); }
+  #s4 .term-name {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 16px; color: var(--gold);
+  }
+  #s4 .term-def { font-size: 13px; color: var(--warm-gray); line-height: 1.5; }
+
+  /* ── SLIDE 5 — למה דווקא ארה"ב ── */
+  #s5 { background: radial-gradient(ellipse at 45% 55%, #162030 0%, var(--navy) 70%); }
+  #s5 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(26px, 4vw, 50px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s5 h2 span { color: var(--gold); }
+  #s5 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 480px; line-height: 1.7; margin-bottom: 36px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s5 .usa-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 14px; max-width: 620px; width: 100%;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s5 .usa-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 14px; padding: 20px 18px;
+    transition: border-color 0.3s;
+  }
+  #s5 .usa-card:hover { border-color: rgba(201,168,76,0.3); }
+  #s5 .usa-card .ico { font-size: 26px; margin-bottom: 10px; }
+  #s5 .usa-card h4 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 15px; color: var(--gold); margin-bottom: 6px;
+  }
+  #s5 .usa-card p { font-size: 12px; color: var(--warm-gray); line-height: 1.55; }
+
+  /* ── SLIDE 6 — QUOTE ── */
+  #s6 { background: #0a1520; }
+  #s6::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 70%);
+  }
+  #s6 .quote-mark {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 120px; color: rgba(201,168,76,0.12);
+    line-height: 0.8; margin-bottom: -10px;
+    align-self: flex-start; z-index: 1;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+  #s6 blockquote {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(18px, 2.8vw, 32px);
+    font-weight: 400; line-height: 1.65;
+    text-align: center; color: var(--cream);
+    max-width: 680px; position: relative; z-index: 1;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+  #s6 .gold-line {
+    width: 60px; height: 1px; background: var(--gold);
+    opacity: 0.4; margin: 24px auto 0; z-index: 1;
+    animation: fadeUp 0.5s ease 0.4s both;
+  }
+  #s6 .author {
+    margin-top: 16px; font-size: 13px;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold); opacity: 0.8;
+    position: relative; z-index: 1;
+    animation: fadeUp 0.5s ease 0.5s both;
+  }
+</style>
+</head>
+<body>
+
+<div class="logo-badge">THALER CAPITAL MANAGEMENT</div>
+<div class="session-badge">מפגש 8</div>
+
+<div class="deck">
+
+  <!-- SLIDE 1 — השקעות זה לא הימורים -->
+  <div class="slide active" id="s1">
+    <div class="label">מפגש 8 · שקף 1</div>
+    <h2>השקעות זה <span>לא הימורים</span></h2>
+    <p class="sub">ההבדל הוא לא בסיכון — הוא בגישה, בזמן, ובהבנה של מה קורה עם הכסף שלך.</p>
+    <div class="compare">
+      <div class="col gamble">
+        <div class="ico">🎰</div>
+        <h3>ספקולציה</h3>
+        <ul>
+          <li>לנסות לתזמן את השוק</li>
+          <li>להמר על מניה בודדת</li>
+          <li>לרדוף אחרי "טיפים חמים"</li>
+          <li>לצפות לתשואה מהירה</li>
+        </ul>
+      </div>
+      <div class="divider">≠</div>
+      <div class="col invest">
+        <div class="ico">🌱</div>
+        <h3>השקעה</h3>
+        <ul>
+          <li>לקנות את כל השוק</li>
+          <li>לחכות לאורך שנים</li>
+          <li>להתעלם מרעש יומי</li>
+          <li>לתת לזמן לעבוד</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 — ריבית דריבית -->
+  <div class="slide" id="s2">
+    <div class="label">מפגש 8 · שקף 2</div>
+    <h2>הפלא ה<span>שמיני</span><br>של העולם</h2>
+    <p class="sub">$500 לחודש, 10% תשואה שנתית (ממוצע S&P 500) — כמה זה שווה לאורך זמן?</p>
+    <div class="compound-table">
+      <div class="ct-row header">
+        <span>אחרי</span>
+        <span>הפקדת</span>
+        <span>שווי בפועל</span>
+      </div>
+      <div class="ct-row">
+        <span>10 שנים</span>
+        <span class="invested">$60,000</span>
+        <span class="value">$102,000</span>
+      </div>
+      <div class="ct-row">
+        <span>20 שנים</span>
+        <span class="invested">$120,000</span>
+        <span class="value">$382,000</span>
+      </div>
+      <div class="ct-row">
+        <span>30 שנים</span>
+        <span class="invested">$180,000</span>
+        <span class="value">$1,131,000</span>
+      </div>
+      <div class="ct-row highlight">
+        <span>40 שנים</span>
+        <span class="invested">$240,000</span>
+        <span class="value">$3,162,000</span>
+      </div>
+    </div>
+    <div class="disclaimer">* הפקדת $240K — קיבלת $3.16M. השאר עשה הזמן.</div>
+  </div>
+
+  <!-- SLIDE 3 — היסטוריה של הבורסה -->
+  <div class="slide" id="s3">
+    <div class="label">מפגש 8 · שקף 3</div>
+    <h2>100 שנה של <span>משברים</span> —<br>ותמיד חזר</h2>
+    <p class="sub">כל פעם שהשוק קרס — אנשים בטוחים שהפעם זה שונה. בפועל, לא היה שונה.</p>
+    <div class="history-list">
+      <div class="h-item">
+        <span class="event">1929 — קריסת וול סטריט</span>
+        <span class="result">השוק חזר ↑ תוך שנים</span>
+      </div>
+      <div class="h-item">
+        <span class="event">1987 — Black Monday (22% ביום)</span>
+        <span class="result">התאושש תוך שנתיים</span>
+      </div>
+      <div class="h-item">
+        <span class="event">2000 — פקיעת בועת הדוט-קום</span>
+        <span class="result">שיאים חדשים תוך 7 שנים</span>
+      </div>
+      <div class="h-item">
+        <span class="event">2008 — משבר הסאב-פריים</span>
+        <span class="result">שוק הכפיל עצמו תוך 5 שנים</span>
+      </div>
+      <div class="h-item">
+        <span class="event">2020 — קורונה (34% תוך חודש)</span>
+        <span class="result">שיא חדש תוך 6 חודשים</span>
+      </div>
+    </div>
+    <div class="conclusion">✦ מי שנשאר בשוק — הרוויח. מי שברח בפחד — הפסיד.</div>
+  </div>
+
+  <!-- SLIDE 4 — מילים מפחידות -->
+  <div class="slide" id="s4">
+    <div class="label">מפגש 8 · שקף 4</div>
+    <h2>מילים <span>מפחידות</span> —<br>הסברים פשוטים</h2>
+    <p class="sub">הז'רגון נועד לבלבל. זה לא מסובך — רק לא מוכר.</p>
+    <div class="terms">
+      <div class="term-row">
+        <span class="term-name">מניה</span>
+        <span class="term-def">חלק קטן בבעלות על חברה — אתה שותף, לא מלווה</span>
+      </div>
+      <div class="term-row">
+        <span class="term-name">אג"ח</span>
+        <span class="term-def">הלוואה שאתה נותן לממשלה/חברה — הם משלמים לך ריבית</span>
+      </div>
+      <div class="term-row">
+        <span class="term-name">מדד (Index)</span>
+        <span class="term-def">סל של מאות חברות — S&P 500 = 500 החברות הגדולות בארה"ב</span>
+      </div>
+      <div class="term-row">
+        <span class="term-name">ETF</span>
+        <span class="term-def">קרן שקונה את כל המדד בבת אחת — פיזור מיידי, עמלה נמוכה</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 — למה דווקא ארה"ב -->
+  <div class="slide" id="s5">
+    <div class="label">מפגש 8 · שקף 5</div>
+    <h2>למה דווקא <span>ארה"ב</span>?</h2>
+    <p class="sub">לא פטריוטיזם — היגיון כלכלי. הכלכלה הגדולה בעולם היא הבסיס הכי יציב להשקעה.</p>
+    <div class="usa-grid">
+      <div class="usa-card">
+        <div class="ico">🏆</div>
+        <h4>הכלכלה הגדולה בעולם</h4>
+        <p>~$27 טריליון GDP — פי 1.5 מהסינית, פי 6 מהיפנית</p>
+      </div>
+      <div class="usa-card">
+        <div class="ico">💡</div>
+        <h4>מרכז החדשנות הגלובלי</h4>
+        <p>Apple, Google, Amazon, Microsoft — החברות שמניעות את העולם</p>
+      </div>
+      <div class="usa-card">
+        <div class="ico">⚖️</div>
+        <h4>מערכת משפט יציבה</h4>
+        <p>הגנה על זכויות משקיעים, שקיפות, רגולציה — בסיס לאמון</p>
+      </div>
+      <div class="usa-card">
+        <div class="ico">📈</div>
+        <h4>100 שנות ביצועים</h4>
+        <p>תשואה ממוצעת של ~10% לשנה — בדוק היסטורית</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 — QUOTE -->
+  <div class="slide" id="s6">
+    <div class="quote-mark">"</div>
+    <blockquote>לא לעשות כלום זו תמיד ההחלטה הנוחה — ולעתים קרובות זו הטעות היקרה ביותר.</blockquote>
+    <div class="gold-line"></div>
+    <div class="author">Peter Lynch</div>
+  </div>
+
+  <!-- SLIDE 7 — שיעורי בית -->
+  <div class="slide" id="s7">
+    <div class="label">מפגש 8 · שיעורי בית</div>
+    <h2 style="font-family:'Frank Ruhl Libre',serif;font-size:clamp(26px,4vw,48px);text-align:center;margin-bottom:14px;animation:fadeUp 0.5s ease 0.2s both;">להתחיל <span style="color:var(--gold)">להכיר</span> את השוק</h2>
+    <p style="color:var(--warm-gray);font-size:15px;text-align:center;max-width:480px;line-height:1.7;margin-bottom:40px;animation:fadeUp 0.5s ease 0.3s both;">לא לקנות שום דבר עדיין — רק להבין את הסביבה.</p>
+    <div style="display:flex;flex-direction:column;gap:14px;max-width:540px;width:100%;animation:fadeUp 0.6s ease 0.4s both;">
+      <div style="display:flex;gap:16px;align-items:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:'Frank Ruhl Libre',serif;font-size:22px;color:var(--gold);opacity:0.6;min-width:28px;">1</div>
+        <div>
+          <div style="font-size:15px;color:var(--cream);margin-bottom:6px;font-weight:500;">לקרוא מאמר על S&P 500</div>
+          <div style="font-size:13px;color:var(--warm-gray);line-height:1.6;">אשלח לך מאמר ספציפי לפני המפגש הבא — לקרוא ולהגיע עם שאלה אחת.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:'Frank Ruhl Libre',serif;font-size:22px;color:var(--gold);opacity:0.6;min-width:28px;">2</div>
+        <div>
+          <div style="font-size:15px;color:var(--cream);margin-bottom:6px;font-weight:500;">להגיע עם שאלה אחת</div>
+          <div style="font-size:13px;color:var(--warm-gray);line-height:1.6;">לא יותר מאחת — השאלה הכי חשובה שעלתה לך מהקריאה. נפתח איתה את המפגש הבא.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:'Frank Ruhl Libre',serif;font-size:22px;color:var(--gold);opacity:0.6;min-width:28px;">3</div>
+        <div>
+          <div style="font-size:15px;color:var(--cream);margin-bottom:6px;font-weight:500;">להמשיך לפזר לשלושת החשבונות</div>
+          <div style="font-size:13px;color:var(--warm-gray);line-height:1.6;">הרגל שהתחיל במפגש 6 — להמשיך לבנות אותו כל חודש.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="nav prev" onclick="changeSlide(1)">›</button>
+<button class="nav next" onclick="changeSlide(-1)">‹</button>
+<div class="slide-num" id="dots"></div>
+<div class="hint">← → לניווט</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dotsEl.children[current].classList.add('active');
+  }
+
+  function changeSlide(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') changeSlide(1);
+    if (e.key === 'ArrowRight') changeSlide(-1);
+  });
+
+  let startX = 0;
+  document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+  });
+</script>
+</body>
+</html>

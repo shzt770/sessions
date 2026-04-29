@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מפגש 6 — Thaler Capital Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;700;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --cream: #f5f0e8;
+    --warm-gray: #b8b0a2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    font-family: 'Heebo', sans-serif;
+    color: var(--cream);
+    overflow: hidden;
+    height: 100vh; width: 100vw;
+  }
+
+  .deck { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 60px 80px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: all; }
+
+  .logo-badge {
+    position: fixed; top: 28px; right: 40px;
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 13px; color: var(--gold);
+    letter-spacing: 1px; opacity: 0.7; z-index: 100;
+  }
+  .session-badge {
+    position: fixed; top: 28px; left: 40px;
+    font-size: 11px; letter-spacing: 3px;
+    color: rgba(201,168,76,0.5); text-transform: uppercase; z-index: 100;
+  }
+  .slide-num {
+    position: fixed; bottom: 36px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 10px; z-index: 100;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(201,168,76,0.3); cursor: pointer; transition: background 0.3s;
+  }
+  .dot.active { background: var(--gold); }
+  .nav {
+    position: fixed; top: 50%; transform: translateY(-50%);
+    background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25);
+    color: var(--gold); width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 20px; transition: all 0.3s; z-index: 100;
+  }
+  .nav:hover { background: rgba(201,168,76,0.25); }
+  .nav.prev { right: 24px; }
+  .nav.next { left: 24px; }
+  .hint {
+    position: fixed; bottom: 28px; right: 40px;
+    font-size: 11px; color: rgba(184,176,162,0.3); letter-spacing: 1px;
+  }
+  .label {
+    font-size: 11px; letter-spacing: 4px; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 16px;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SLIDE 1 — החזון לפרישה ── */
+  #s1 { background: radial-gradient(ellipse at 40% 60%, #162030 0%, var(--navy) 70%); }
+  #s1 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(28px, 4vw, 54px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s1 h2 span { color: var(--gold); }
+  #s1 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 500px; line-height: 1.7; margin-bottom: 44px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s1 .vision-qs {
+    display: flex; flex-direction: column; gap: 14px;
+    max-width: 580px; width: 100%;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s1 .vq {
+    display: flex; gap: 16px; align-items: flex-start;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 12px; padding: 18px 22px;
+    transition: border-color 0.3s;
+  }
+  #s1 .vq:hover { border-color: rgba(201,168,76,0.35); }
+  #s1 .vq .ico { font-size: 22px; min-width: 28px; }
+  #s1 .vq p { font-size: 14px; color: var(--cream); line-height: 1.6; }
+
+  /* ── SLIDE 2 — ויתור היום ── */
+  #s2 { background: linear-gradient(150deg, #0d1b2a 0%, #111e2d 100%); }
+  #s2 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(28px, 4vw, 52px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s2 h2 span { color: var(--gold); }
+  #s2 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 500px; line-height: 1.7; margin-bottom: 44px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s2 .sacrifice {
+    display: grid; grid-template-columns: 1fr 60px 1fr;
+    max-width: 660px; width: 100%;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s2 .sac-col {
+    padding: 26px 22px; border-radius: 16px; text-align: center;
+  }
+  #s2 .sac-col.today {
+    background: rgba(180,60,60,0.1);
+    border: 1px solid rgba(180,60,60,0.25);
+  }
+  #s2 .sac-col.future {
+    background: rgba(42,120,80,0.12);
+    border: 1px solid rgba(42,120,80,0.3);
+  }
+  #s2 .sac-col .ico { font-size: 32px; margin-bottom: 12px; }
+  #s2 .sac-col h3 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 17px; margin-bottom: 10px; color: var(--cream);
+  }
+  #s2 .sac-col p { font-size: 13px; color: var(--warm-gray); line-height: 1.65; }
+  #s2 .divider {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: rgba(201,168,76,0.3);
+  }
+
+  /* ── SLIDE 3 — תיעדוף הוצאות ── */
+  #s3 { background: radial-gradient(ellipse at 60% 40%, #162030 0%, var(--navy) 70%); }
+  #s3 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(28px, 4vw, 52px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s3 h2 span { color: var(--gold); }
+  #s3 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 500px; line-height: 1.7; margin-bottom: 40px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s3 .priority-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px; max-width: 660px; width: 100%;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s3 .p-card {
+    border-radius: 14px; padding: 22px 18px; text-align: center;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
+  }
+  #s3 .p-card .ico { font-size: 28px; margin-bottom: 10px; }
+  #s3 .p-card h4 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 15px; color: var(--gold); margin-bottom: 8px;
+  }
+  #s3 .p-card p { font-size: 12px; color: var(--warm-gray); line-height: 1.55; }
+  #s3 .p-card.must { border-color: rgba(180,60,60,0.25); background: rgba(180,60,60,0.08); }
+  #s3 .p-card.want { border-color: rgba(201,168,76,0.2); background: rgba(201,168,76,0.06); }
+  #s3 .p-card.cut  { border-color: rgba(100,100,100,0.2); background: rgba(100,100,100,0.06); }
+
+  /* ── SLIDE 4 — המתמטיקה של הפרישה ── */
+  #s4 { background: linear-gradient(160deg, #0d1b2a 0%, #0f2030 100%); }
+  #s4 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(26px, 4vw, 50px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s4 h2 span { color: var(--gold); }
+  #s4 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 500px; line-height: 1.7; margin-bottom: 40px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s4 .math-flow {
+    display: flex; align-items: center; gap: 0;
+    max-width: 720px; width: 100%;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s4 .math-box {
+    flex: 1; border-radius: 14px; padding: 22px 16px; text-align: center;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.12);
+  }
+  #s4 .math-box .ico { font-size: 26px; margin-bottom: 10px; }
+  #s4 .math-box h4 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 14px; color: var(--gold); margin-bottom: 6px;
+  }
+  #s4 .math-box p { font-size: 12px; color: var(--warm-gray); line-height: 1.5; }
+  #s4 .math-arrow {
+    font-size: 20px; color: rgba(201,168,76,0.3);
+    padding: 0 8px; flex-shrink: 0;
+  }
+  #s4 .result-box {
+    margin-top: 24px; padding: 18px 28px;
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 14px; text-align: center;
+    max-width: 560px; width: 100%;
+    animation: fadeUp 0.5s ease 0.5s both;
+  }
+  #s4 .result-box p { font-size: 14px; color: var(--cream); line-height: 1.6; }
+  #s4 .result-box strong { color: var(--gold-light); }
+
+  /* ── SLIDE 5 — קרן חירום מדויקת ── */
+  #s5 { background: radial-gradient(ellipse at 45% 55%, #162030 0%, var(--navy) 70%); }
+  #s5 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(26px, 4vw, 50px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s5 h2 span { color: var(--gold); }
+  #s5 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 500px; line-height: 1.7; margin-bottom: 40px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s5 .emergency-calc {
+    display: flex; flex-direction: column; gap: 12px;
+    max-width: 560px; width: 100%;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s5 .calc-row {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 14px 20px;
+  }
+  #s5 .calc-row span { font-size: 14px; color: var(--warm-gray); }
+  #s5 .calc-row .val { color: var(--cream); font-weight: 500; }
+  #s5 .calc-total {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 10px; padding: 16px 20px;
+    margin-top: 4px;
+  }
+  #s5 .calc-total span { font-size: 15px; color: var(--cream); font-weight: 600; }
+  #s5 .calc-total .val {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 22px; color: var(--gold);
+  }
+
+  /* ── SLIDE 6 — בניית התקציב האישי ── */
+  #s6 { background: linear-gradient(150deg, #0d1b2a 0%, #0f2233 100%); }
+  #s6 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(26px, 4vw, 50px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s6 h2 span { color: var(--gold); }
+  #s6 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 500px; line-height: 1.7; margin-bottom: 40px;
+    font-style: italic;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s6 .build-steps {
+    display: flex; flex-direction: column; gap: 12px;
+    max-width: 560px; width: 100%;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s6 .step {
+    display: flex; gap: 16px; align-items: center;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 12px; padding: 16px 20px;
+  }
+  #s6 .step .num {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 26px; color: var(--gold); opacity: 0.5; min-width: 28px;
+  }
+  #s6 .step p { font-size: 14px; color: var(--cream); line-height: 1.6; }
+  #s6 .step p span { color: var(--gold-light); font-weight: 500; }
+
+  /* ── SLIDE 7 — QUOTE ── */
+  #s7 { background: #0a1520; }
+  #s7::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 70%);
+  }
+  #s7 .quote-mark {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 120px; color: rgba(201,168,76,0.12);
+    line-height: 0.8; margin-bottom: -10px;
+    align-self: flex-start; z-index: 1;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+  #s7 blockquote {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(18px, 2.8vw, 32px);
+    font-weight: 400; line-height: 1.65;
+    text-align: center; color: var(--cream);
+    max-width: 680px; position: relative; z-index: 1;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+  #s7 .gold-line {
+    width: 60px; height: 1px; background: var(--gold);
+    opacity: 0.4; margin: 24px auto 0; z-index: 1;
+    animation: fadeUp 0.5s ease 0.4s both;
+  }
+  #s7 .author {
+    margin-top: 16px; font-size: 13px;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold); opacity: 0.8;
+    position: relative; z-index: 1;
+    animation: fadeUp 0.5s ease 0.5s both;
+  }
+</style>
+</head>
+<body>
+
+<div class="logo-badge">THALER CAPITAL MANAGEMENT</div>
+<div class="session-badge">מפגש 6</div>
+
+<div class="deck">
+
+  <!-- SLIDE 1 — החזון לפרישה -->
+  <div class="slide active" id="s1">
+    <div class="label">מפגש 6 · שקף 1</div>
+    <h2>איך נראה היום <span>המושלם</span><br>שלך בגיל 65?</h2>
+    <p class="sub">לפני שנגע במספרים — נצייר את התמונה. הכסף הוא רק הכלי. זה היעד.</p>
+    <div class="vision-qs">
+      <div class="vq">
+        <div class="ico">☀️</div>
+        <p>איפה אתה קם בבוקר? עם מי? מה אתה עושה בשעה הראשונה של היום?</p>
+      </div>
+      <div class="vq">
+        <div class="ico">💼</div>
+        <p>האם אתה עדיין עובד? מה זה נראה — כי אתה רוצה, לא כי אתה חייב?</p>
+      </div>
+      <div class="vq">
+        <div class="ico">👨‍👩‍👧‍👦</div>
+        <p>מה אתה יכול לתת לילדים ולנכדים שהיום אתה לא יכול?</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 — ויתור היום = מתנה למחר -->
+  <div class="slide" id="s2">
+    <div class="label">מפגש 6 · שקף 2</div>
+    <h2>ויתור היום —<br><span>מתנה לעצמך</span> בעתיד</h2>
+    <p class="sub">כל החלטה פיננסית היא שיחה בין הגרסה של היום לגרסה של העתיד שלך.</p>
+    <div class="sacrifice">
+      <div class="sac-col today">
+        <div class="ico">⏳</div>
+        <h3>הויתור היום</h3>
+        <p>פחות הוצאה על רצונות מיידיים.<br>כאב קטן, מודע, נבחר.<br>לא חסך בחיים — חסך בבזבוז.</p>
+      </div>
+      <div class="divider">→</div>
+      <div class="sac-col future">
+        <div class="ico">🎁</div>
+        <h3>המתנה בעתיד</h3>
+        <p>חופש לבחור — לא חובה לעבוד.<br>ביטחון לכל אירוע.<br>גרסת העתיד שלך אומרת תודה.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 — תיעדוף הוצאות -->
+  <div class="slide" id="s3">
+    <div class="label">מפגש 6 · שקף 3</div>
+    <h2>לסווג — לא <span>לשפוט</span></h2>
+    <p class="sub">שלוש שאלות לכל הוצאה ברשימה שלך.</p>
+    <div class="priority-grid">
+      <div class="p-card must">
+        <div class="ico">🔴</div>
+        <h4>חובה</h4>
+        <p>החיים נפגעים בלי זה. אין ויכוח.</p>
+      </div>
+      <div class="p-card want">
+        <div class="ico">🟡</div>
+        <h4>רצון</h4>
+        <p>מוסיף לחיים — אבל ניתן לכוונן.</p>
+      </div>
+      <div class="p-card cut">
+        <div class="ico">⚪</div>
+        <h4>מועמד לוויתור</h4>
+        <p>לא בטוח שמוסיף — שווה לבחון.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 — המתמטיקה של הפרישה -->
+  <div class="slide" id="s4">
+    <div class="label">מפגש 6 · שקף 4</div>
+    <h2>המתמטיקה של <span>החופש</span></h2>
+    <p class="sub">המערכת לוקחת את הנתונים שלך ומראה לאן אתה הולך — ואיפה צריך לכוון.</p>
+    <div class="math-flow">
+      <div class="math-box">
+        <div class="ico">📊</div>
+        <h4>נתונים נוכחיים</h4>
+        <p>4 שבועות של הכנסות והוצאות</p>
+      </div>
+      <div class="math-arrow">←</div>
+      <div class="math-box">
+        <div class="ico">🎯</div>
+        <h4>יעד הפרישה</h4>
+        <p>גיל, סגנון חיים, הוצאה חודשית</p>
+      </div>
+      <div class="math-arrow">←</div>
+      <div class="math-box">
+        <div class="ico">💡</div>
+        <h4>הפער</h4>
+        <p>כמה צריך לחסוך בחודש כדי להגיע</p>
+      </div>
+    </div>
+    <div class="result-box">
+      <p>זו לא תחזית — זו <strong>מפת דרכים</strong>. המספרים יתעדכנו כל מפגש.</p>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 — קרן חירום מדויקת -->
+  <div class="slide" id="s5">
+    <div class="label">מפגש 6 · שקף 5</div>
+    <h2>קרן החירום <span>שלך</span> —<br>מחושבת במדויק</h2>
+    <p class="sub">לא מספר אקראי — יעד מדויק שנגזר מהחיים שלך.</p>
+    <div class="emergency-calc">
+      <div class="calc-row">
+        <span>דיור + חשמל + מים</span>
+        <span class="val">הוצאה חודשית חיונית</span>
+      </div>
+      <div class="calc-row">
+        <span>מזון בסיסי</span>
+        <span class="val">הוצאה חודשית חיונית</span>
+      </div>
+      <div class="calc-row">
+        <span>תחבורה לעבודה</span>
+        <span class="val">הוצאה חודשית חיונית</span>
+      </div>
+      <div class="calc-row">
+        <span>ביטוחים חיוניים</span>
+        <span class="val">הוצאה חודשית חיונית</span>
+      </div>
+      <div class="calc-total">
+        <span>יעד קרן חירום (3–6 חודשים)</span>
+        <span class="val">X × 3 עד X × 6</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 — בניית התקציב האישי -->
+  <div class="slide" id="s6">
+    <div class="label">מפגש 6 · שקף 6</div>
+    <h2>התקציב <span>האישי שלך</span></h2>
+    <p class="sub">"לא נוסחה גנרית — המספרים שנגזרו מהחיים האמיתיים שלך"</p>
+    <div class="build-steps">
+      <div class="step">
+        <div class="num">1</div>
+        <p>בוחנים יחד את <span>4 השבועות</span> — מה חובה, מה רצון, מה מועמד לוויתור</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <p>קובעים <span>אחוזים מותאמים אישית</span> — לא 50/30/20 של מישהו אחר</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <p>מגדירים <span>סכום חיסכון חודשי</span> שמוביל ליעד הפרישה שציירת</p>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <p>מגדירים <span>הוראת קבע אוטומטית</span> — כסף שמגיע לאחרי המשכורת ישר לחיסכון</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7 — QUOTE -->
+  <div class="slide" id="s7">
+    <div class="quote-mark">"</div>
+    <blockquote>תכנון ללא פעולה הוא חלום. פעולה ללא תכנון היא סיוט.</blockquote>
+    <div class="gold-line"></div>
+    <div class="author">Winston Churchill</div>
+  </div>
+
+  <!-- SLIDE 8 — שיעורי בית -->
+  <div class="slide" id="s8">
+    <div class="label">מפגש 6 · שיעורי בית</div>
+    <h2 style="font-family:'Frank Ruhl Libre',serif;font-size:clamp(26px,4vw,48px);text-align:center;margin-bottom:14px;animation:fadeUp 0.5s ease 0.2s both;">לעבור מ<span style="color:var(--gold)">לימוד</span> לפעולה</h2>
+    <p style="color:var(--warm-gray);font-size:15px;text-align:center;max-width:480px;line-height:1.7;margin-bottom:40px;animation:fadeUp 0.5s ease 0.3s both;">השבוע הכי חשוב בקורס — כאן הכסף מתחיל לזוז.</p>
+    <div style="display:flex;flex-direction:column;gap:14px;max-width:540px;width:100%;animation:fadeUp 0.6s ease 0.4s both;">
+      <div style="display:flex;gap:16px;align-items:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:'Frank Ruhl Libre',serif;font-size:22px;color:var(--gold);opacity:0.6;min-width:28px;">1</div>
+        <div>
+          <div style="font-size:15px;color:var(--cream);margin-bottom:6px;font-weight:500;">להתחיל לפזר כסף לשלושת החשבונות</div>
+          <div style="font-size:13px;color:var(--warm-gray);line-height:1.6;">לפי האחוזים שקבענו יחד היום — שוטף, חירום, חיסכון. להגדיר הוראת קבע אוטומטית.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:'Frank Ruhl Libre',serif;font-size:22px;color:var(--gold);opacity:0.6;min-width:28px;">2</div>
+        <div>
+          <div style="font-size:15px;color:var(--cream);margin-bottom:6px;font-weight:500;">לכתוב רשימת ויתורים ורשימת רצונות</div>
+          <div style="font-size:13px;color:var(--warm-gray);line-height:1.6;">שתי רשימות נפרדות — מה אתה מוכן לוותר עליו, ומה באמת חשוב לך לשמר.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:'Frank Ruhl Libre',serif;font-size:22px;color:var(--gold);opacity:0.6;min-width:28px;">3</div>
+        <div>
+          <div style="font-size:15px;color:var(--cream);margin-bottom:6px;font-weight:500;">שיחה עם בן/בת הזוג על שתי הרשימות</div>
+          <div style="font-size:13px;color:var(--warm-gray);line-height:1.6;">לא ויכוח — שיחה. לגלות איפה יש הסכמה ואיפה צריך למצוא איזון.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="nav prev" onclick="changeSlide(1)">›</button>
+<button class="nav next" onclick="changeSlide(-1)">‹</button>
+<div class="slide-num" id="dots"></div>
+<div class="hint">← → לניווט</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dotsEl.children[current].classList.add('active');
+  }
+
+  function changeSlide(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') changeSlide(1);
+    if (e.key === 'ArrowRight') changeSlide(-1);
+  });
+
+  let startX = 0;
+  document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+  });
+</script>
+</body>
+</html>

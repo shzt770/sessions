@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 8 — Thaler Capital Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --navy: #0d1b2a; --gold: #c9a84c; --gold-light: #e8c97a; --cream: #f5f0e8; --warm-gray: #b8b0a2; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--navy); font-family: 'Inter', sans-serif; color: var(--cream); overflow: hidden; height: 100vh; width: 100vw; }
+  .deck { width: 100vw; height: 100vh; position: relative; }
+  .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 80px; opacity: 0; pointer-events: none; transition: opacity 0.6s ease; }
+  .slide.active { opacity: 1; pointer-events: all; }
+  .logo-badge { position: fixed; top: 28px; right: 40px; font-family: 'Playfair Display', serif; font-size: 13px; color: var(--gold); letter-spacing: 1px; opacity: 0.7; z-index: 100; }
+  .session-badge { position: fixed; top: 28px; left: 40px; font-size: 11px; letter-spacing: 3px; color: rgba(201,168,76,0.5); text-transform: uppercase; z-index: 100; }
+  .slide-num { position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 100; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(201,168,76,0.3); cursor: pointer; transition: background 0.3s; }
+  .dot.active { background: var(--gold); }
+  .nav { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25); color: var(--gold); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; transition: all 0.3s; z-index: 100; }
+  .nav:hover { background: rgba(201,168,76,0.25); }
+  .nav.prev { left: 24px; }
+  .nav.next { right: 24px; }
+  .hint { position: fixed; bottom: 28px; left: 40px; font-size: 11px; color: rgba(184,176,162,0.3); letter-spacing: 1px; }
+  .label { font-size: 11px; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; animation: fadeUp 0.5s ease 0.1s both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  #s1 { background: radial-gradient(ellipse at 40% 55%, #162030 0%, var(--navy) 70%); }
+  #s1 h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 52px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s1 h2 span { color: var(--gold); }
+  #s1 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 44px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s1 .compare { display: grid; grid-template-columns: 1fr 60px 1fr; max-width: 660px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s1 .col { padding: 26px 22px; border-radius: 16px; text-align: center; }
+  #s1 .col.gamble { background: rgba(180,60,60,0.1); border: 1px solid rgba(180,60,60,0.25); }
+  #s1 .col.invest { background: rgba(42,120,80,0.12); border: 1px solid rgba(42,120,80,0.3); }
+  #s1 .col .ico { font-size: 32px; margin-bottom: 12px; }
+  #s1 .col h3 { font-family: 'Playfair Display', serif; font-size: 17px; margin-bottom: 10px; color: var(--cream); }
+  #s1 .col ul { list-style: none; }
+  #s1 .col ul li { font-size: 13px; color: var(--warm-gray); padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  #s1 .col ul li:last-child { border: none; }
+  #s1 .divider { display: flex; align-items: center; justify-content: center; font-size: 26px; color: rgba(201,168,76,0.3); }
+
+  #s2 { background: linear-gradient(150deg, #0d1b2a 0%, #111e2d 100%); }
+  #s2 h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 52px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s2 h2 span { color: var(--gold); }
+  #s2 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.7; margin-bottom: 36px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s2 .compound-table { width: 100%; max-width: 560px; animation: fadeUp 0.6s ease 0.4s both; }
+  #s2 .ct-row { display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 13px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; align-items: center; }
+  #s2 .ct-row.header { font-size: 11px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; border-bottom: 1px solid rgba(201,168,76,0.2); }
+  #s2 .ct-row .invested { color: var(--warm-gray); }
+  #s2 .ct-row .value { color: var(--gold-light); font-weight: 600; }
+  #s2 .ct-row.highlight { background: rgba(201,168,76,0.08); border-radius: 8px; border-bottom: none; }
+  #s2 .disclaimer { font-size: 11px; color: rgba(184,176,162,0.4); text-align: center; margin-top: 12px; font-style: italic; animation: fadeUp 0.5s ease 0.5s both; }
+
+  #s3 { background: radial-gradient(ellipse at 55% 45%, #162030 0%, var(--navy) 70%); }
+  #s3 h2 { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.8vw, 50px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s3 h2 span { color: var(--gold); }
+  #s3 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 36px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s3 .history-list { display: flex; flex-direction: column; gap: 10px; max-width: 580px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s3 .h-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; }
+  #s3 .h-item .event { font-size: 13px; color: var(--warm-gray); }
+  #s3 .h-item .result { font-size: 13px; color: var(--gold-light); font-weight: 500; }
+  #s3 .conclusion { margin-top: 16px; padding: 14px 24px; background: rgba(42,120,80,0.1); border: 1px solid rgba(42,120,80,0.25); border-radius: 12px; font-size: 14px; color: var(--cream); text-align: center; max-width: 560px; width: 100%; animation: fadeUp 0.5s ease 0.5s both; }
+
+  #s4 { background: linear-gradient(160deg, #0d1b2a 0%, #0f2030 100%); }
+  #s4 h2 { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.8vw, 50px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s4 h2 span { color: var(--gold); }
+  #s4 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.7; margin-bottom: 36px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s4 .terms { display: flex; flex-direction: column; gap: 10px; max-width: 580px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s4 .term-row { display: grid; grid-template-columns: 100px 1fr; gap: 16px; align-items: center; padding: 14px 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.1); border-radius: 10px; transition: border-color 0.3s; }
+  #s4 .term-row:hover { border-color: rgba(201,168,76,0.3); }
+  #s4 .term-name { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--gold); }
+  #s4 .term-def { font-size: 13px; color: var(--warm-gray); line-height: 1.5; }
+
+  #s5 { background: radial-gradient(ellipse at 45% 55%, #162030 0%, var(--navy) 70%); }
+  #s5 h2 { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.8vw, 50px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s5 h2 span { color: var(--gold); }
+  #s5 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.7; margin-bottom: 36px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s5 .usa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 620px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s5 .usa-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.12); border-radius: 14px; padding: 20px 18px; transition: border-color 0.3s; }
+  #s5 .usa-card:hover { border-color: rgba(201,168,76,0.3); }
+  #s5 .usa-card .ico { font-size: 26px; margin-bottom: 10px; }
+  #s5 .usa-card h4 { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--gold); margin-bottom: 6px; }
+  #s5 .usa-card p { font-size: 12px; color: var(--warm-gray); line-height: 1.55; }
+
+  #s6 { background: #0a1520; }
+  #s6::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 70%); }
+  #s6 .quote-mark { font-family: 'Playfair Display', serif; font-size: 120px; color: rgba(201,168,76,0.12); line-height: 0.8; margin-bottom: -10px; align-self: flex-start; z-index: 1; animation: fadeUp 0.5s ease 0.1s both; }
+  #s6 blockquote { font-family: 'Playfair Display', serif; font-size: clamp(18px, 2.8vw, 32px); font-weight: 400; line-height: 1.65; text-align: center; color: var(--cream); max-width: 680px; position: relative; z-index: 1; animation: fadeUp 0.6s ease 0.3s both; }
+  #s6 .gold-line { width: 60px; height: 1px; background: var(--gold); opacity: 0.4; margin: 24px auto 0; z-index: 1; }
+  #s6 .author { margin-top: 16px; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); opacity: 0.8; position: relative; z-index: 1; animation: fadeUp 0.5s ease 0.5s both; }
+
+  #s7 { background: radial-gradient(ellipse at 50% 40%, #162030 0%, var(--navy) 70%); }
+  #s7 h2 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 3.8vw, 46px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s7 h2 span { color: var(--gold); }
+  #s7 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s7 .hw-list { display: flex; flex-direction: column; gap: 14px; max-width: 540px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s7 .hw-item { display: flex; gap: 16px; align-items: flex-start; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: 12px; padding: 18px 22px; }
+  #s7 .hw-num { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold); opacity: 0.6; min-width: 28px; }
+  #s7 .hw-title { font-size: 15px; color: var(--cream); margin-bottom: 6px; font-weight: 500; }
+  #s7 .hw-desc { font-size: 13px; color: var(--warm-gray); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="logo-badge">THALER CAPITAL MANAGEMENT</div>
+<div class="session-badge">Session 8</div>
+
+<div class="deck">
+
+  <div class="slide active" id="s1">
+    <div class="label">Session 8 · Slide 1</div>
+    <h2>Investing Isn't<br><span>Gambling</span></h2>
+    <p class="sub">The difference isn't about risk. It's about approach, time horizon, and understanding what you actually own.</p>
+    <div class="compare">
+      <div class="col gamble">
+        <div class="ico">🎰</div>
+        <h3>Speculation</h3>
+        <ul>
+          <li>Trying to time the market</li>
+          <li>Betting on a single stock</li>
+          <li>Chasing hot tips</li>
+          <li>Expecting quick returns</li>
+        </ul>
+      </div>
+      <div class="divider">≠</div>
+      <div class="col invest">
+        <div class="ico">🌱</div>
+        <h3>Investing</h3>
+        <ul>
+          <li>Buying the whole market</li>
+          <li>Holding for years</li>
+          <li>Ignoring the daily noise</li>
+          <li>Letting time do the work</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s2">
+    <div class="label">Session 8 · Slide 2</div>
+    <h2>The <span>Eighth Wonder</span><br>of the World</h2>
+    <p class="sub">$500/month at 10% annual return (S&P 500 historical average) — here's what time does to it.</p>
+    <div class="compound-table">
+      <div class="ct-row header">
+        <span>After</span>
+        <span>You put in</span>
+        <span>It's worth</span>
+      </div>
+      <div class="ct-row">
+        <span>10 years</span>
+        <span class="invested">$60,000</span>
+        <span class="value">$102,000</span>
+      </div>
+      <div class="ct-row">
+        <span>20 years</span>
+        <span class="invested">$120,000</span>
+        <span class="value">$382,000</span>
+      </div>
+      <div class="ct-row">
+        <span>30 years</span>
+        <span class="invested">$180,000</span>
+        <span class="value">$1,131,000</span>
+      </div>
+      <div class="ct-row highlight">
+        <span>40 years</span>
+        <span class="invested">$240,000</span>
+        <span class="value">$3,162,000</span>
+      </div>
+    </div>
+    <div class="disclaimer">* You put in $240K. Time turned it into $3.16M.</div>
+  </div>
+
+  <div class="slide" id="s3">
+    <div class="label">Session 8 · Slide 3</div>
+    <h2>The Market Has<br><span>Crashed Before. It Always Came Back.</span></h2>
+    <p class="sub">Every single time the market collapsed, people were convinced it was different this time. It never was.</p>
+    <div class="history-list">
+      <div class="h-item">
+        <span class="event">1929 — The Great Depression</span>
+        <span class="result">Market recovered within years</span>
+      </div>
+      <div class="h-item">
+        <span class="event">1987 — Black Monday (down 22% in one day)</span>
+        <span class="result">Recovered within two years</span>
+      </div>
+      <div class="h-item">
+        <span class="event">2000 — Dot-com bubble burst</span>
+        <span class="result">New highs within 7 years</span>
+      </div>
+      <div class="h-item">
+        <span class="event">2008 — Financial crisis</span>
+        <span class="result">Market doubled within 5 years</span>
+      </div>
+      <div class="h-item">
+        <span class="event">2020 — COVID crash (down 34% in one month)</span>
+        <span class="result">New all-time high within 6 months</span>
+      </div>
+    </div>
+    <div class="conclusion">✦ People who stayed in the market made money. People who panicked and sold didn't.</div>
+  </div>
+
+  <div class="slide" id="s4">
+    <div class="label">Session 8 · Slide 4</div>
+    <h2>The Jargon<br><span>Decoded</span></h2>
+    <p class="sub">The terminology is designed to sound complicated. It isn't. Here's what it actually means.</p>
+    <div class="terms">
+      <div class="term-row">
+        <span class="term-name">Stock</span>
+        <span class="term-def">A small ownership stake in a company — you're a shareholder, not a lender</span>
+      </div>
+      <div class="term-row">
+        <span class="term-name">Bond</span>
+        <span class="term-def">A loan you give to a government or company — they pay you back with interest</span>
+      </div>
+      <div class="term-row">
+        <span class="term-name">Index</span>
+        <span class="term-def">A basket of companies — the S&P 500 is simply the 500 largest companies in America</span>
+      </div>
+      <div class="term-row">
+        <span class="term-name">ETF</span>
+        <span class="term-def">A fund that buys the whole index in one click — instant diversification, minimal fees</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s5">
+    <div class="label">Session 8 · Slide 5</div>
+    <h2>Why Invest<br><span>in the U.S. Market?</span></h2>
+    <p class="sub">This isn't patriotism — it's logic. The world's largest economy is also its most reliable long-term investment base.</p>
+    <div class="usa-grid">
+      <div class="usa-card">
+        <div class="ico">🏆</div>
+        <h4>World's Largest Economy</h4>
+        <p>~$27 trillion GDP — 1.5x China, 6x Japan</p>
+      </div>
+      <div class="usa-card">
+        <div class="ico">💡</div>
+        <h4>Home of Global Innovation</h4>
+        <p>Apple, Google, Amazon, Microsoft — the companies driving the world's economy</p>
+      </div>
+      <div class="usa-card">
+        <div class="ico">⚖️</div>
+        <h4>Strong Legal Protections</h4>
+        <p>Investor rights, transparency, regulation — the foundation of long-term confidence</p>
+      </div>
+      <div class="usa-card">
+        <div class="ico">📈</div>
+        <h4>100 Years of Evidence</h4>
+        <p>~10% average annual return — through wars, crashes, recessions, and pandemics</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s6">
+    <div class="quote-mark">"</div>
+    <blockquote>Doing nothing is always the comfortable choice — and often the most expensive one.</blockquote>
+    <div class="gold-line"></div>
+    <div class="author">Peter Lynch</div>
+  </div>
+
+  <div class="slide" id="s7">
+    <div class="label">Session 8 · Homework</div>
+    <h2>This Week:<br><span>Get Familiar with the Market</span></h2>
+    <p class="sub">Don't buy anything yet. Just start learning the territory.</p>
+    <div class="hw-list">
+      <div class="hw-item">
+        <div class="hw-num">1</div>
+        <div>
+          <div class="hw-title">Read the article on the S&P 500</div>
+          <div class="hw-desc">I'll send it to you before next session. Read it once, and come in with one question — just one.</div>
+        </div>
+      </div>
+      <div class="hw-item">
+        <div class="hw-num">2</div>
+        <div>
+          <div class="hw-title">Come with one question</div>
+          <div class="hw-desc">Whatever came up as you read — the most important thing you want to understand. We'll open next session with it.</div>
+        </div>
+      </div>
+      <div class="hw-item">
+        <div class="hw-num">3</div>
+        <div>
+          <div class="hw-title">Keep splitting across your three accounts</div>
+          <div class="hw-desc">The habit you started in Session 6 — keep building it every month.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="nav prev" onclick="changeSlide(-1)">‹</button>
+<button class="nav next" onclick="changeSlide(1)">›</button>
+<div class="slide-num" id="dots"></div>
+<div class="hint">← → to navigate</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dotsEl.children[current].classList.add('active');
+  }
+  function changeSlide(dir) { goTo(current + dir); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') changeSlide(1);
+    if (e.key === 'ArrowLeft') changeSlide(-1);
+  });
+  let startX = 0;
+  document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+  });
+</script>
+</body>
+</html>

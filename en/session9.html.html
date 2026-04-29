@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 9 — Thaler Capital Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --navy: #0d1b2a; --gold: #c9a84c; --gold-light: #e8c97a; --cream: #f5f0e8; --warm-gray: #b8b0a2; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--navy); font-family: 'Inter', sans-serif; color: var(--cream); overflow: hidden; height: 100vh; width: 100vw; }
+  .deck { width: 100vw; height: 100vh; position: relative; }
+  .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 80px; opacity: 0; pointer-events: none; transition: opacity 0.6s ease; }
+  .slide.active { opacity: 1; pointer-events: all; }
+  .logo-badge { position: fixed; top: 28px; right: 40px; font-family: 'Playfair Display', serif; font-size: 13px; color: var(--gold); letter-spacing: 1px; opacity: 0.7; z-index: 100; }
+  .session-badge { position: fixed; top: 28px; left: 40px; font-size: 11px; letter-spacing: 3px; color: rgba(201,168,76,0.5); text-transform: uppercase; z-index: 100; }
+  .slide-num { position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 100; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(201,168,76,0.3); cursor: pointer; transition: background 0.3s; }
+  .dot.active { background: var(--gold); }
+  .nav { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25); color: var(--gold); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; transition: all 0.3s; z-index: 100; }
+  .nav:hover { background: rgba(201,168,76,0.25); }
+  .nav.prev { left: 24px; }
+  .nav.next { right: 24px; }
+  .hint { position: fixed; bottom: 28px; left: 40px; font-size: 11px; color: rgba(184,176,162,0.3); letter-spacing: 1px; }
+  .label { font-size: 11px; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; animation: fadeUp 0.5s ease 0.1s both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  #s1 { background: radial-gradient(ellipse at 40% 55%, #162030 0%, var(--navy) 70%); }
+  #s1 h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 52px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s1 h2 span { color: var(--gold); }
+  #s1 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s1 .inflation-table { width: 100%; max-width: 540px; animation: fadeUp 0.6s ease 0.4s both; }
+  #s1 .inf-row { display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 13px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; align-items: center; }
+  #s1 .inf-row.header { font-size: 11px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; border-bottom: 1px solid rgba(201,168,76,0.2); }
+  #s1 .today { color: var(--warm-gray); }
+  #s1 .future { color: #e07070; font-weight: 500; }
+  #s1 .inf-note { margin-top: 16px; padding: 12px 20px; background: rgba(180,60,60,0.08); border: 1px solid rgba(180,60,60,0.2); border-radius: 10px; font-size: 13px; color: var(--warm-gray); text-align: center; animation: fadeUp 0.5s ease 0.5s both; }
+  #s1 .inf-note strong { color: var(--cream); }
+
+  #s2 { background: linear-gradient(150deg, #0d1b2a 0%, #111e2d 100%); }
+  #s2 h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 52px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s2 h2 span { color: var(--gold); }
+  #s2 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s2 .broker-flow { display: flex; align-items: center; gap: 0; max-width: 660px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s2 .bf-box { flex: 1; border-radius: 14px; padding: 22px 16px; text-align: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.12); }
+  #s2 .bf-box .ico { font-size: 28px; margin-bottom: 10px; }
+  #s2 .bf-box h4 { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--gold); margin-bottom: 6px; }
+  #s2 .bf-box p { font-size: 12px; color: var(--warm-gray); line-height: 1.5; }
+  #s2 .bf-arrow { font-size: 20px; color: rgba(201,168,76,0.3); padding: 0 10px; flex-shrink: 0; }
+  #s2 .brokers-list { margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; animation: fadeUp 0.5s ease 0.5s both; }
+  #s2 .broker-tag { padding: 8px 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: 50px; font-size: 13px; color: var(--cream); }
+
+  #s3 { background: radial-gradient(ellipse at 55% 40%, #162030 0%, var(--navy) 70%); }
+  #s3 h2 { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.8vw, 50px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s3 h2 span { color: var(--gold); }
+  #s3 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s3 .roth-compare { display: grid; grid-template-columns: 1fr 60px 1fr; max-width: 660px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s3 .rc-col { padding: 24px 20px; border-radius: 16px; text-align: center; }
+  #s3 .rc-col.traditional { background: rgba(180,120,40,0.1); border: 1px solid rgba(180,120,40,0.25); }
+  #s3 .rc-col.roth { background: rgba(42,120,80,0.12); border: 1px solid rgba(42,120,80,0.3); }
+  #s3 .rc-col h3 { font-family: 'Playfair Display', serif; font-size: 17px; margin-bottom: 14px; color: var(--cream); }
+  #s3 .rc-col ul { list-style: none; }
+  #s3 .rc-col ul li { font-size: 13px; color: var(--warm-gray); padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); line-height: 1.5; }
+  #s3 .rc-col ul li:last-child { border: none; }
+  #s3 .divider { display: flex; align-items: center; justify-content: center; font-size: 26px; color: rgba(201,168,76,0.3); }
+  #s3 .verdict { margin-top: 20px; padding: 12px 24px; background: rgba(42,120,80,0.1); border: 1px solid rgba(42,120,80,0.25); border-radius: 10px; font-size: 13px; color: var(--cream); text-align: center; max-width: 560px; width: 100%; animation: fadeUp 0.5s ease 0.5s both; }
+
+  #s4 { background: linear-gradient(160deg, #0d1b2a 0%, #0f2030 100%); }
+  #s4 h2 { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.8vw, 50px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s4 h2 span { color: var(--gold); }
+  #s4 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s4 .steps { display: flex; flex-direction: column; gap: 12px; max-width: 540px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s4 .step { display: flex; gap: 16px; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.12); border-radius: 12px; padding: 16px 20px; transition: border-color 0.3s; }
+  #s4 .step:hover { border-color: rgba(201,168,76,0.3); }
+  #s4 .step .num { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--gold); opacity: 0.5; min-width: 28px; }
+  #s4 .step p { font-size: 14px; color: var(--cream); line-height: 1.6; }
+  #s4 .step p span { color: var(--gold-light); }
+
+  #s5 { background: radial-gradient(ellipse at 45% 55%, #162030 0%, var(--navy) 70%); }
+  #s5 h2 { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.8vw, 50px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s5 h2 span { color: var(--gold); }
+  #s5 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.7; margin-bottom: 36px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s5 .platform-table { width: 100%; max-width: 620px; animation: fadeUp 0.6s ease 0.4s both; }
+  #s5 .pt-row { display: grid; grid-template-columns: 140px 1fr 1fr; padding: 13px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; align-items: center; gap: 8px; }
+  #s5 .pt-row.header { font-size: 11px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; border-bottom: 1px solid rgba(201,168,76,0.2); }
+  #s5 .platform { color: var(--cream); font-weight: 500; }
+  #s5 .pro { color: #7ecfa0; font-size: 12px; }
+  #s5 .con { color: var(--warm-gray); font-size: 12px; }
+  #s5 .pt-row.rec { background: rgba(201,168,76,0.06); border-radius: 8px; border-bottom: none; border: 1px solid rgba(201,168,76,0.15); margin-top: 4px; }
+
+  #s6 { background: #0a1520; }
+  #s6::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 70%); }
+  #s6 .quote-mark { font-family: 'Playfair Display', serif; font-size: 120px; color: rgba(201,168,76,0.12); line-height: 0.8; margin-bottom: -10px; align-self: flex-start; z-index: 1; animation: fadeUp 0.5s ease 0.1s both; }
+  #s6 blockquote { font-family: 'Playfair Display', serif; font-size: clamp(18px, 2.8vw, 32px); font-weight: 400; line-height: 1.65; text-align: center; color: var(--cream); max-width: 680px; position: relative; z-index: 1; animation: fadeUp 0.6s ease 0.3s both; }
+  #s6 .gold-line { width: 60px; height: 1px; background: var(--gold); opacity: 0.4; margin: 24px auto 0; z-index: 1; }
+  #s6 .author { margin-top: 16px; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); opacity: 0.8; position: relative; z-index: 1; animation: fadeUp 0.5s ease 0.5s both; }
+
+  #s7 { background: radial-gradient(ellipse at 50% 40%, #162030 0%, var(--navy) 70%); }
+  #s7 h2 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 3.8vw, 46px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s7 h2 span { color: var(--gold); }
+  #s7 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s7 .hw-list { display: flex; flex-direction: column; gap: 14px; max-width: 540px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s7 .hw-item { display: flex; gap: 16px; align-items: flex-start; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: 12px; padding: 18px 22px; }
+  #s7 .hw-num { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold); opacity: 0.6; min-width: 28px; }
+  #s7 .hw-title { font-size: 15px; color: var(--cream); margin-bottom: 6px; font-weight: 500; }
+  #s7 .hw-desc { font-size: 13px; color: var(--warm-gray); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="logo-badge">THALER CAPITAL MANAGEMENT</div>
+<div class="session-badge">Session 9</div>
+
+<div class="deck">
+
+  <div class="slide active" id="s1">
+    <div class="label">Session 9 · Slide 1</div>
+    <h2>Leaving Cash Idle<br><span>Is Losing Money</span></h2>
+    <p class="sub">Inflation doesn't announce itself. It just quietly shrinks the value of every dollar that isn't growing.</p>
+    <div class="inflation-table">
+      <div class="inf-row header">
+        <span>Amount</span>
+        <span>Value Today</span>
+        <span>Value in 20 Years (3% inflation)</span>
+      </div>
+      <div class="inf-row">
+        <span>$10,000</span>
+        <span class="today">$10,000</span>
+        <span class="future">~$5,537</span>
+      </div>
+      <div class="inf-row">
+        <span>$50,000</span>
+        <span class="today">$50,000</span>
+        <span class="future">~$27,684</span>
+      </div>
+      <div class="inf-row">
+        <span>$100,000</span>
+        <span class="today">$100,000</span>
+        <span class="future">~$55,368</span>
+      </div>
+    </div>
+    <div class="inf-note">
+      <strong>Doing nothing isn't safe — it's a guaranteed loss.</strong> Keeping cash under the mattress means losing half its value every 20 years.
+    </div>
+  </div>
+
+  <div class="slide" id="s2">
+    <div class="label">Session 9 · Slide 2</div>
+    <h2>How Do You<br><span>Actually Buy a Stock?</span></h2>
+    <p class="sub">It used to be complicated and expensive. Today it takes 10 minutes and costs nothing.</p>
+    <div class="broker-flow">
+      <div class="bf-box">
+        <div class="ico">🙋</div>
+        <h4>You</h4>
+        <p>Want to buy an S&P 500 ETF</p>
+      </div>
+      <div class="bf-arrow">→</div>
+      <div class="bf-box">
+        <div class="ico">🏛️</div>
+        <h4>Broker</h4>
+        <p>The middleman between you and the market — holds your assets</p>
+      </div>
+      <div class="bf-arrow">→</div>
+      <div class="bf-box">
+        <div class="ico">📈</div>
+        <h4>The Market</h4>
+        <p>NYSE / NASDAQ — where the trade actually happens</p>
+      </div>
+    </div>
+    <div class="brokers-list">
+      <div class="broker-tag">Fidelity</div>
+      <div class="broker-tag">Charles Schwab</div>
+      <div class="broker-tag">Vanguard</div>
+      <div class="broker-tag">Robinhood</div>
+    </div>
+  </div>
+
+  <div class="slide" id="s3">
+    <div class="label">Session 9 · Slide 3</div>
+    <h2>Roth IRA vs.<br><span>Traditional IRA</span></h2>
+    <p class="sub">One question decides it: would you rather pay tax on the seed — or on the harvest?</p>
+    <div class="roth-compare">
+      <div class="rc-col traditional">
+        <h3>Traditional IRA</h3>
+        <ul>
+          <li>Contribute pre-tax dollars</li>
+          <li>Save on taxes now</li>
+          <li>Pay taxes when you withdraw</li>
+          <li>Best if your income is high today</li>
+        </ul>
+      </div>
+      <div class="divider">⟷</div>
+      <div class="rc-col roth">
+        <h3>Roth IRA</h3>
+        <ul>
+          <li>Contribute after-tax dollars</li>
+          <li>Pay taxes now</li>
+          <li>Withdrawals in retirement are tax-free</li>
+          <li>Best if your income is lower today</li>
+        </ul>
+      </div>
+    </div>
+    <div class="verdict">✦ For most of our clients — Roth IRA wins. Your money grows for 30 years completely tax-free.</div>
+  </div>
+
+  <div class="slide" id="s4">
+    <div class="label">Session 9 · Slide 4</div>
+    <h2>Opening a Brokerage Account —<br><span>Step by Step</span></h2>
+    <p class="sub">10 minutes. No minimum balance. No fees. No reason to wait.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <p>Go to the broker's website — <span>Fidelity / Schwab / Vanguard</span></p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <p>Click <span>"Open an Account"</span> → choose Roth IRA or regular brokerage account</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <p>Fill in your personal info + <span>Social Security Number</span> + income source</p>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <p>Link your bank and set up a <span>monthly automatic deposit</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s5">
+    <div class="label">Session 9 · Slide 5</div>
+    <h2>Which Broker<br><span>Is Right for You?</span></h2>
+    <p class="sub">They're all free. The difference is the experience.</p>
+    <div class="platform-table">
+      <div class="pt-row header">
+        <span>Platform</span>
+        <span>Best feature</span>
+        <span>Best for</span>
+      </div>
+      <div class="pt-row">
+        <span class="platform">Fidelity</span>
+        <span class="pro">Excellent customer service and research tools</span>
+        <span class="con">Long-term investors</span>
+      </div>
+      <div class="pt-row">
+        <span class="platform">Charles Schwab</span>
+        <span class="pro">Commission-free in-house ETFs</span>
+        <span class="con">People who want everything in one place</span>
+      </div>
+      <div class="pt-row">
+        <span class="platform">Vanguard</span>
+        <span class="pro">Invented index funds — the original</span>
+        <span class="con">Dedicated index fund investors</span>
+      </div>
+      <div class="pt-row rec">
+        <span class="platform">Robinhood</span>
+        <span class="pro">Clean, simple interface</span>
+        <span class="con">Beginners who want to start fast</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s6">
+    <div class="quote-mark">"</div>
+    <blockquote>The best time to plant a tree was twenty years ago. The second best time is now.</blockquote>
+    <div class="gold-line"></div>
+    <div class="author">Chinese Proverb</div>
+  </div>
+
+  <div class="slide" id="s7">
+    <div class="label">Session 9 · Homework</div>
+    <h2>This Week:<br><span>Open Your Brokerage Account</span></h2>
+    <p class="sub">This is the week theory becomes reality.</p>
+    <div class="hw-list">
+      <div class="hw-item">
+        <div class="hw-num">1</div>
+        <div>
+          <div class="hw-title">Open a brokerage account</div>
+          <div class="hw-desc">Fidelity, Schwab, or Vanguard — pick one and open it. Choose Roth IRA if your income qualifies.</div>
+        </div>
+      </div>
+      <div class="hw-item">
+        <div class="hw-num">2</div>
+        <div>
+          <div class="hw-title">Link your bank account</div>
+          <div class="hw-desc">Connect your savings account — but don't deposit anything yet. We'll do that together in our final session.</div>
+        </div>
+      </div>
+      <div class="hw-item">
+        <div class="hw-num">3</div>
+        <div>
+          <div class="hw-title">Send me a screenshot of the open account</div>
+          <div class="hw-desc">So we can walk into Session 10 ready to go.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="nav prev" onclick="changeSlide(-1)">‹</button>
+<button class="nav next" onclick="changeSlide(1)">›</button>
+<div class="slide-num" id="dots"></div>
+<div class="hint">← → to navigate</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dotsEl.children[current].classList.add('active');
+  }
+  function changeSlide(dir) { goTo(current + dir); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') changeSlide(1);
+    if (e.key === 'ArrowLeft') changeSlide(-1);
+  });
+  let startX = 0;
+  document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+  });
+</script>
+</body>
+</html>

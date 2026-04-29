@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 3 — Thaler Capital Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --navy: #0d1b2a; --gold: #c9a84c; --gold-light: #e8c97a; --cream: #f5f0e8; --warm-gray: #b8b0a2; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--navy); font-family: 'Inter', sans-serif; color: var(--cream); overflow: hidden; height: 100vh; width: 100vw; }
+  .deck { width: 100vw; height: 100vh; position: relative; }
+  .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 80px; opacity: 0; pointer-events: none; transition: opacity 0.6s ease; }
+  .slide.active { opacity: 1; pointer-events: all; }
+  .logo-badge { position: fixed; top: 28px; right: 40px; font-family: 'Playfair Display', serif; font-size: 13px; color: var(--gold); letter-spacing: 1px; opacity: 0.7; z-index: 100; }
+  .session-badge { position: fixed; top: 28px; left: 40px; font-size: 11px; letter-spacing: 3px; color: rgba(201,168,76,0.5); text-transform: uppercase; z-index: 100; }
+  .slide-num { position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 100; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(201,168,76,0.3); cursor: pointer; transition: background 0.3s; }
+  .dot.active { background: var(--gold); }
+  .nav { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25); color: var(--gold); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; transition: all 0.3s; z-index: 100; }
+  .nav:hover { background: rgba(201,168,76,0.25); }
+  .nav.prev { left: 24px; }
+  .nav.next { right: 24px; }
+  .hint { position: fixed; bottom: 28px; left: 40px; font-size: 11px; color: rgba(184,176,162,0.3); letter-spacing: 1px; }
+  .label { font-size: 11px; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; animation: fadeUp 0.5s ease 0.1s both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  #s1 { background: radial-gradient(ellipse at 35% 55%, #162030 0%, var(--navy) 70%); }
+  #s1 h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 52px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s1 h2 span { color: var(--gold); }
+  #s1 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 520px; line-height: 1.7; margin-bottom: 44px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s1 .split { display: grid; grid-template-columns: 1fr 60px 1fr; max-width: 680px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s1 .col { padding: 28px 24px; border-radius: 16px; text-align: center; }
+  #s1 .col.wealthy { background: rgba(42,120,80,0.12); border: 1px solid rgba(42,120,80,0.3); }
+  #s1 .col.appearance { background: rgba(180,60,60,0.1); border: 1px solid rgba(180,60,60,0.25); }
+  #s1 .col .ico { font-size: 34px; margin-bottom: 12px; }
+  #s1 .col h3 { font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 14px; color: var(--cream); }
+  #s1 .col ul { list-style: none; }
+  #s1 .col ul li { font-size: 13px; color: var(--warm-gray); padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  #s1 .col ul li:last-child { border: none; }
+  #s1 .divider { display: flex; align-items: center; justify-content: center; font-size: 26px; color: rgba(201,168,76,0.3); }
+
+  #s2 { background: linear-gradient(150deg, #0d1b2a 0%, #121e2e 100%); }
+  #s2 h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 52px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s2 h2 span { color: var(--gold); }
+  #s2 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s2 .chain-list { display: flex; flex-direction: column; gap: 12px; max-width: 560px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s2 .chain-item { display: flex; align-items: center; gap: 16px; background: rgba(180,60,60,0.08); border: 1px solid rgba(180,60,60,0.2); border-radius: 12px; padding: 16px 20px; }
+  #s2 .chain-item .ico { font-size: 22px; min-width: 28px; }
+  #s2 .chain-item h4 { font-size: 14px; color: var(--cream); margin-bottom: 3px; font-weight: 600; }
+  #s2 .chain-item p { font-size: 12px; color: var(--warm-gray); }
+  #s2 .break-out { margin-top: 20px; padding: 14px 24px; background: rgba(42,120,80,0.12); border: 1px solid rgba(42,120,80,0.3); border-radius: 12px; font-size: 14px; color: var(--cream); text-align: center; max-width: 560px; width: 100%; animation: fadeUp 0.6s ease 0.5s both; }
+
+  #s3 { background: radial-gradient(ellipse at 60% 40%, #162030 0%, var(--navy) 70%); }
+  #s3 h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 52px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s3 h2 span { color: var(--gold); }
+  #s3 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 44px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s3 .calm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 620px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s3 .calm-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: 14px; padding: 22px 20px; transition: border-color 0.3s; }
+  #s3 .calm-card:hover { border-color: rgba(201,168,76,0.35); }
+  #s3 .calm-card .ico { font-size: 26px; margin-bottom: 10px; }
+  #s3 .calm-card h4 { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--gold); margin-bottom: 6px; }
+  #s3 .calm-card p { font-size: 13px; color: var(--warm-gray); line-height: 1.55; }
+
+  #s4 { background: #0a1520; }
+  #s4::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.07) 0%, transparent 65%); }
+  #s4 .key-q { font-family: 'Playfair Display', serif; font-size: clamp(22px, 3.5vw, 44px); text-align: center; line-height: 1.5; color: var(--cream); max-width: 680px; position: relative; z-index: 1; animation: fadeUp 0.6s ease 0.2s both; }
+  #s4 .key-q span { color: var(--gold); }
+  #s4 .gold-line { width: 60px; height: 1px; background: var(--gold); opacity: 0.3; margin: 32px auto; position: relative; z-index: 1; }
+  #s4 .answers { display: flex; gap: 24px; position: relative; z-index: 1; animation: fadeUp 0.6s ease 0.5s both; }
+  #s4 .answer { padding: 16px 32px; border-radius: 50px; font-size: 15px; text-align: center; }
+  #s4 .answer.a { background: rgba(42,120,80,0.15); border: 1px solid rgba(42,120,80,0.35); color: #7ecfa0; }
+  #s4 .answer.b { background: rgba(180,60,60,0.12); border: 1px solid rgba(180,60,60,0.3); color: #e07070; }
+
+  #s5 { background: linear-gradient(160deg, #0d1b2a 0%, #0f2030 100%); }
+  #s5 h2 { font-family: 'Playfair Display', serif; font-size: clamp(26px, 4vw, 48px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s5 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.7; margin-bottom: 44px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s5 .insight-list { display: flex; flex-direction: column; gap: 14px; max-width: 560px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s5 .insight { display: flex; gap: 16px; align-items: flex-start; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.12); border-radius: 12px; padding: 16px 20px; transition: border-color 0.3s; }
+  #s5 .insight:hover { border-color: rgba(201,168,76,0.3); }
+  #s5 .insight .num { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--gold); opacity: 0.5; min-width: 24px; margin-top: 1px; }
+  #s5 .insight .txt { font-size: 14px; color: var(--cream); line-height: 1.6; }
+  #s5 .insight .txt strong { color: var(--gold-light); }
+
+  #s6 { background: radial-gradient(ellipse at 50% 40%, #162030 0%, var(--navy) 70%); }
+  #s6 h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 52px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s6 h2 span { color: var(--gold); }
+  #s6 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 44px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s6 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 640px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s6 .col-box { border-radius: 16px; padding: 26px 22px; text-align: center; }
+  #s6 .col-box.enables { background: rgba(42,120,80,0.12); border: 1px solid rgba(42,120,80,0.3); }
+  #s6 .col-box.constrains { background: rgba(180,60,60,0.1); border: 1px solid rgba(180,60,60,0.25); }
+  #s6 .col-box .ico { font-size: 32px; margin-bottom: 12px; }
+  #s6 .col-box h3 { font-family: 'Playfair Display', serif; font-size: 17px; margin-bottom: 14px; color: var(--cream); }
+  #s6 .col-box ul { list-style: none; }
+  #s6 .col-box ul li { font-size: 13px; color: var(--warm-gray); padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  #s6 .col-box ul li:last-child { border: none; }
+
+  #s7 { background: #0a1520; }
+  #s7::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 70%); }
+  #s7 .quote-mark { font-family: 'Playfair Display', serif; font-size: 120px; color: rgba(201,168,76,0.12); line-height: 0.8; margin-bottom: -10px; align-self: flex-start; z-index: 1; animation: fadeUp 0.5s ease 0.1s both; }
+  #s7 blockquote { font-family: 'Playfair Display', serif; font-size: clamp(18px, 2.8vw, 32px); font-weight: 400; line-height: 1.65; text-align: center; color: var(--cream); max-width: 680px; position: relative; z-index: 1; animation: fadeUp 0.6s ease 0.3s both; }
+  #s7 .gold-line { width: 60px; height: 1px; background: var(--gold); opacity: 0.4; margin: 24px auto 0; z-index: 1; }
+  #s7 .author { margin-top: 16px; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); opacity: 0.8; position: relative; z-index: 1; animation: fadeUp 0.5s ease 0.5s both; }
+
+  #s8 { background: radial-gradient(ellipse at 50% 40%, #162030 0%, var(--navy) 70%); }
+  #s8 h2 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 3.8vw, 46px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s8 h2 span { color: var(--gold); }
+  #s8 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s8 .hw-list { display: flex; flex-direction: column; gap: 14px; max-width: 540px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s8 .hw-item { display: flex; gap: 16px; align-items: flex-start; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: 12px; padding: 18px 22px; }
+  #s8 .hw-num { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold); opacity: 0.6; min-width: 28px; }
+  #s8 .hw-title { font-size: 15px; color: var(--cream); margin-bottom: 6px; font-weight: 500; }
+  #s8 .hw-desc { font-size: 13px; color: var(--warm-gray); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="logo-badge">THALER CAPITAL MANAGEMENT</div>
+<div class="session-badge">Session 3</div>
+
+<div class="deck">
+
+  <div class="slide active" id="s1">
+    <div class="label">Session 3 · Slide 1</div>
+    <h2>Rich vs.<br><span>Looking Rich</span></h2>
+    <p class="sub">From the outside, they can look exactly the same. The difference is entirely on the other side of the balance sheet.</p>
+    <div class="split">
+      <div class="col wealthy">
+        <div class="ico">🏛️</div>
+        <h3>Actually Wealthy</h3>
+        <ul>
+          <li>Assets are greater than debts</li>
+          <li>Money works for them</li>
+          <li>Spend less than they earn</li>
+          <li>Quiet, lasting confidence</li>
+        </ul>
+      </div>
+      <div class="divider">≠</div>
+      <div class="col appearance">
+        <div class="ico">🎭</div>
+        <h3>Looking Wealthy</h3>
+        <ul>
+          <li>Debts outweigh assets</li>
+          <li>Working to pay obligations</li>
+          <li>Spending beyond their means</li>
+          <li>Anxiety hidden behind appearances</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s2">
+    <div class="label">Session 3 · Slide 2</div>
+    <h2>The Financial Traps<br><span>Most People Don't See Coming</span></h2>
+    <p class="sub">No chains. No locks. Just signed agreements and monthly payments — that quietly take over your financial life.</p>
+    <div class="chain-list">
+      <div class="chain-item">
+        <div class="ico">🏠</div>
+        <div>
+          <h4>A Mortgage That's Too Big</h4>
+          <p>A home that takes two full incomes to sustain — with no room for anything to go wrong</p>
+        </div>
+      </div>
+      <div class="chain-item">
+        <div class="ico">🚗</div>
+        <div>
+          <h4>An Endless Lease Cycle</h4>
+          <p>Always a payment, never actual ownership</p>
+        </div>
+      </div>
+      <div class="chain-item">
+        <div class="ico">💳</div>
+        <div>
+          <h4>Revolving Credit Card Debt</h4>
+          <p>Paying interest today on things you enjoyed — and already forgot about</p>
+        </div>
+      </div>
+    </div>
+    <div class="break-out">✦ The way out starts with awareness — not a bigger paycheck</div>
+  </div>
+
+  <div class="slide" id="s3">
+    <div class="label">Session 3 · Slide 3</div>
+    <h2>Why an Emergency Fund<br><span>Changes Everything</span></h2>
+    <p class="sub">It's not just savings. It's the layer of protection that lets you make decisions from a place of calm instead of panic.</p>
+    <div class="calm-grid">
+      <div class="calm-card">
+        <div class="ico">🛡️</div>
+        <h4>Handles the Unexpected</h4>
+        <p>Job loss, medical bills, repairs — absorbed without selling investments at a bad time</p>
+      </div>
+      <div class="calm-card">
+        <div class="ico">🧠</div>
+        <h4>Clears Your Head</h4>
+        <p>When you have a safety net, you make better decisions — because you're not operating from fear</p>
+      </div>
+      <div class="calm-card">
+        <div class="ico">🚪</div>
+        <h4>Gives You the Power to Say No</h4>
+        <p>To a bad job, a bad deal, or a situation that doesn't work for you</p>
+      </div>
+      <div class="calm-card">
+        <div class="ico">📐</div>
+        <h4>The Target: 3–6 Months</h4>
+        <p>Of essential expenses only — calculated precisely, not just a round number</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s4">
+    <div class="label">Session 3 · Slide 4</div>
+    <div class="key-q">
+      Is your money <span>working for you</span> —<br>or are you working for your money?
+    </div>
+    <div class="gold-line"></div>
+    <div class="answers">
+      <div class="answer a">✓ Assets that generate income</div>
+      <div class="answer b">✗ Obligations that consume it</div>
+    </div>
+  </div>
+
+  <div class="slide" id="s5">
+    <div class="label">Session 3 · Slide 5</div>
+    <h2>What Your First Month<br>of Data Shows</h2>
+    <p class="sub">After three weeks of tracking, three things almost always show up — no matter who you are.</p>
+    <div class="insight-list">
+      <div class="insight">
+        <div class="num">1</div>
+        <div class="txt">There are <strong>expenses you didn't know existed</strong> — subscriptions, fees, and charges you've never consciously reviewed</div>
+      </div>
+      <div class="insight">
+        <div class="num">2</div>
+        <div class="txt">One category is <strong>responsible for most of the leakage</strong> — and it's almost never the one you'd expect</div>
+      </div>
+      <div class="insight">
+        <div class="num">3</div>
+        <div class="txt">The gap between <strong>what you thought you were spending</strong> and what you actually spent is almost always surprising</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s6">
+    <div class="label">Session 3 · Slide 6</div>
+    <h2>Money as a <span>Tool</span>,<br>Not a Master</h2>
+    <p class="sub">The same amount of money can either open doors or close them. The difference isn't the number — it's how you use it.</p>
+    <div class="two-col">
+      <div class="col-box enables">
+        <div class="ico">🕊️</div>
+        <h3>Money That Frees You</h3>
+        <ul>
+          <li>Covers essentials without stress</li>
+          <li>Opens up your choices</li>
+          <li>Builds security over time</li>
+          <li>A tool — not the goal</li>
+        </ul>
+      </div>
+      <div class="col-box constrains">
+        <div class="ico">⛓️</div>
+        <h3>Money That Traps You</h3>
+        <ul>
+          <li>Constant pressure around payments</li>
+          <li>Limits what you can do</li>
+          <li>Creates stress and dependency</li>
+          <li>The goal — not a tool</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s7">
+    <div class="quote-mark">"</div>
+    <blockquote>The rich buy assets. The middle class buys liabilities they think are assets. The poor only have expenses.</blockquote>
+    <div class="gold-line"></div>
+    <div class="author">Robert Kiyosaki</div>
+  </div>
+
+  <div class="slide" id="s8">
+    <div class="label">Session 3 · Homework</div>
+    <h2>This Week:<br><span>One More Layer of Awareness</span></h2>
+    <p class="sub">Three weeks of data. One new habit this week.</p>
+    <div class="hw-list">
+      <div class="hw-item">
+        <div class="hw-num">1</div>
+        <div>
+          <div class="hw-title">Keep tracking every dollar in and out</div>
+          <div class="hw-desc">Seven more days. By week three, patterns you couldn't see in week one start becoming obvious.</div>
+        </div>
+      </div>
+      <div class="hw-item">
+        <div class="hw-num">2</div>
+        <div>
+          <div class="hw-title">Pause before any big purchase this week</div>
+          <div class="hw-desc">Just ask yourself: is this moving me toward financial freedom or away from it? Don't change anything yet — just notice your own thinking.</div>
+        </div>
+      </div>
+      <div class="hw-item">
+        <div class="hw-num">3</div>
+        <div>
+          <div class="hw-title">Your data is saved in our system</div>
+          <div class="hw-desc">Next session, we introduce categories for the first time — and start to see exactly where your money is actually going.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="nav prev" onclick="changeSlide(-1)">‹</button>
+<button class="nav next" onclick="changeSlide(1)">›</button>
+<div class="slide-num" id="dots"></div>
+<div class="hint">← → to navigate</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dotsEl.children[current].classList.add('active');
+  }
+  function changeSlide(dir) { goTo(current + dir); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') changeSlide(1);
+    if (e.key === 'ArrowLeft') changeSlide(-1);
+  });
+  let startX = 0;
+  document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+  });
+</script>
+</body>
+</html>

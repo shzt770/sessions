@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 7 — Thaler Capital Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --navy: #0d1b2a; --gold: #c9a84c; --gold-light: #e8c97a; --cream: #f5f0e8; --warm-gray: #b8b0a2; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--navy); font-family: 'Inter', sans-serif; color: var(--cream); overflow: hidden; height: 100vh; width: 100vw; }
+  .deck { width: 100vw; height: 100vh; position: relative; }
+  .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 80px; opacity: 0; pointer-events: none; transition: opacity 0.6s ease; }
+  .slide.active { opacity: 1; pointer-events: all; }
+  .logo-badge { position: fixed; top: 28px; right: 40px; font-family: 'Playfair Display', serif; font-size: 13px; color: var(--gold); letter-spacing: 1px; opacity: 0.7; z-index: 100; }
+  .session-badge { position: fixed; top: 28px; left: 40px; font-size: 11px; letter-spacing: 3px; color: rgba(201,168,76,0.5); text-transform: uppercase; z-index: 100; }
+  .slide-num { position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 100; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(201,168,76,0.3); cursor: pointer; transition: background 0.3s; }
+  .dot.active { background: var(--gold); }
+  .nav { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25); color: var(--gold); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; transition: all 0.3s; z-index: 100; }
+  .nav:hover { background: rgba(201,168,76,0.25); }
+  .nav.prev { left: 24px; }
+  .nav.next { right: 24px; }
+  .hint { position: fixed; bottom: 28px; left: 40px; font-size: 11px; color: rgba(184,176,162,0.3); letter-spacing: 1px; }
+  .label { font-size: 11px; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; animation: fadeUp 0.5s ease 0.1s both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  #s1 { background: radial-gradient(ellipse at 40% 55%, #162030 0%, var(--navy) 70%); }
+  #s1 h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 52px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s1 h2 span { color: var(--gold); }
+  #s1 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 44px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s1 .eaters { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; animation: fadeUp 0.6s ease 0.4s both; }
+  #s1 .eater-card { background: rgba(180,60,60,0.1); border: 1px solid rgba(180,60,60,0.25); border-radius: 14px; padding: 20px 24px; text-align: center; min-width: 160px; flex: 1; }
+  #s1 .eater-card .ico { font-size: 28px; margin-bottom: 10px; }
+  #s1 .eater-card h4 { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--cream); margin-bottom: 6px; }
+  #s1 .eater-card p { font-size: 12px; color: var(--warm-gray); line-height: 1.5; }
+
+  #s2 { background: linear-gradient(150deg, #0d1b2a 0%, #111e2d 100%); }
+  #s2 h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 52px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s2 h2 span { color: var(--gold); }
+  #s2 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s2 .benefits { display: flex; flex-direction: column; gap: 12px; max-width: 580px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s2 .benefit { display: flex; gap: 16px; align-items: flex-start; background: rgba(42,120,80,0.1); border: 1px solid rgba(42,120,80,0.25); border-radius: 12px; padding: 16px 20px; }
+  #s2 .benefit .ico { font-size: 22px; min-width: 28px; }
+  #s2 .benefit h4 { font-size: 14px; color: var(--cream); margin-bottom: 4px; font-weight: 600; }
+  #s2 .benefit p { font-size: 12px; color: var(--warm-gray); line-height: 1.55; }
+
+  #s3 { background: radial-gradient(ellipse at 55% 45%, #162030 0%, var(--navy) 70%); }
+  #s3 h2 { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.8vw, 50px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s3 h2 span { color: var(--gold); }
+  #s3 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s3 .coffee-calc { display: flex; flex-direction: column; gap: 10px; max-width: 540px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s3 .cc-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; }
+  #s3 .cc-row span { font-size: 13px; color: var(--warm-gray); }
+  #s3 .cc-row .val { color: var(--cream); font-weight: 500; }
+  #s3 .cc-total { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); border-radius: 10px; margin-top: 4px; }
+  #s3 .cc-total span { font-size: 14px; color: var(--cream); font-weight: 600; }
+  #s3 .cc-total .val { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold); }
+  #s3 .cc-note { font-size: 12px; color: rgba(184,176,162,0.5); text-align: center; font-style: italic; margin-top: 8px; }
+
+  #s4 { background: linear-gradient(160deg, #0d1b2a 0%, #0f2030 100%); }
+  #s4 h2 { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.8vw, 50px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s4 h2 span { color: var(--gold); }
+  #s4 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s4 .tactics { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 620px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s4 .tactic { background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.12); border-radius: 14px; padding: 20px 18px; transition: border-color 0.3s; }
+  #s4 .tactic:hover { border-color: rgba(201,168,76,0.3); }
+  #s4 .tactic .ico { font-size: 24px; margin-bottom: 10px; }
+  #s4 .tactic h4 { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--gold); margin-bottom: 6px; }
+  #s4 .tactic p { font-size: 12px; color: var(--warm-gray); line-height: 1.55; }
+
+  #s5 { background: #0a1520; }
+  #s5::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 70%); }
+  #s5 .quote-mark { font-family: 'Playfair Display', serif; font-size: 120px; color: rgba(201,168,76,0.12); line-height: 0.8; margin-bottom: -10px; align-self: flex-start; z-index: 1; animation: fadeUp 0.5s ease 0.1s both; }
+  #s5 blockquote { font-family: 'Playfair Display', serif; font-size: clamp(18px, 2.8vw, 32px); font-weight: 400; line-height: 1.65; text-align: center; color: var(--cream); max-width: 680px; position: relative; z-index: 1; animation: fadeUp 0.6s ease 0.3s both; }
+  #s5 .gold-line { width: 60px; height: 1px; background: var(--gold); opacity: 0.4; margin: 24px auto 0; z-index: 1; }
+  #s5 .author { margin-top: 16px; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); opacity: 0.8; position: relative; z-index: 1; animation: fadeUp 0.5s ease 0.5s both; }
+
+  #s6 { background: radial-gradient(ellipse at 50% 40%, #162030 0%, var(--navy) 70%); }
+  #s6 h2 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 3.8vw, 46px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s6 h2 span { color: var(--gold); }
+  #s6 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s6 .hw-list { display: flex; flex-direction: column; gap: 14px; max-width: 540px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s6 .hw-item { display: flex; gap: 16px; align-items: flex-start; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: 12px; padding: 18px 22px; }
+  #s6 .hw-num { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold); opacity: 0.6; min-width: 28px; }
+  #s6 .hw-title { font-size: 15px; color: var(--cream); margin-bottom: 6px; font-weight: 500; }
+  #s6 .hw-desc { font-size: 13px; color: var(--warm-gray); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="logo-badge">THALER CAPITAL MANAGEMENT</div>
+<div class="session-badge">Session 7</div>
+
+<div class="deck">
+
+  <div class="slide active" id="s1">
+    <div class="label">Session 7 · Slide 1</div>
+    <h2>What's Quietly<br><span>Eating Your Returns</span></h2>
+    <p class="sub">You don't need to earn more to keep more. Taxes and fees are the biggest expense most people never think about — and the most fixable.</p>
+    <div class="eaters">
+      <div class="eater-card">
+        <div class="ico">🏛️</div>
+        <h4>Taxes</h4>
+        <p>Federal, State, FICA — every layer takes a cut before you see a dollar</p>
+      </div>
+      <div class="eater-card">
+        <div class="ico">🏦</div>
+        <h4>Bank Fees</h4>
+        <p>Monthly fees, overdraft charges, wire transfers — small and silent</p>
+      </div>
+      <div class="eater-card">
+        <div class="ico">📉</div>
+        <h4>Investment Fees</h4>
+        <p>Expense ratios, management fees — a quiet thief that compounds over decades</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s2">
+    <div class="label">Session 7 · Slide 2</div>
+    <h2>Money That's Already<br><span>Waiting for You</span></h2>
+    <p class="sub">Your employer and the government are both offering you free money. Most people don't take it.</p>
+    <div class="benefits">
+      <div class="benefit">
+        <div class="ico">🏦</div>
+        <div>
+          <h4>401(k) with Employer Match</h4>
+          <p>Every dollar you put in, your employer matches — up to a limit. That's an instant 50%–100% return. There's no better investment available to you.</p>
+        </div>
+      </div>
+      <div class="benefit">
+        <div class="ico">📋</div>
+        <div>
+          <h4>Tax Deductions You're Missing</h4>
+          <p>Business expenses, mortgage interest, charitable giving — most people overpay because they never ask the right questions.</p>
+        </div>
+      </div>
+      <div class="benefit">
+        <div class="ico">🎁</div>
+        <div>
+          <h4>Other Employer Benefits</h4>
+          <p>HSA, FSA, life insurance, stock options — check what your employer offers and make sure you're using all of it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s3">
+    <div class="label">Session 7 · Slide 3</div>
+    <h2>What Does That<br><span>Daily Coffee Actually Cost You?</span></h2>
+    <p class="sub">Compound interest works both ways. Every dollar you spend today is a dollar that can't grow for the next 30 years.</p>
+    <div class="coffee-calc">
+      <div class="cc-row">
+        <span>☕ Daily coffee</span>
+        <span class="val">$6/day = $180/month</span>
+      </div>
+      <div class="cc-row">
+        <span>📅 Over 30 years</span>
+        <span class="val">$64,800 out of pocket</span>
+      </div>
+      <div class="cc-row">
+        <span>📈 Invested instead at 10% annual return</span>
+        <span class="val">Compound growth</span>
+      </div>
+      <div class="cc-total">
+        <span>What it's worth at retirement</span>
+        <span class="val">~$407,000</span>
+      </div>
+    </div>
+    <div class="cc-note">* This isn't about giving up coffee — it's about knowing the real cost of every habit</div>
+  </div>
+
+  <div class="slide" id="s4">
+    <div class="label">Session 7 · Slide 4</div>
+    <h2>Keep More of What<br><span>You Already Earn</span></h2>
+    <p class="sub">Four things you can do right now — without earning a single dollar more.</p>
+    <div class="tactics">
+      <div class="tactic">
+        <div class="ico">✂️</div>
+        <h4>Cancel What You Don't Use</h4>
+        <p>Go through your credit card statement and mark every recurring charge you don't actively use</p>
+      </div>
+      <div class="tactic">
+        <div class="ico">📞</div>
+        <h4>Call and Negotiate</h4>
+        <p>Insurance, internet, cable — one phone call can easily save $50–$100 a month</p>
+      </div>
+      <div class="tactic">
+        <div class="ico">🔄</div>
+        <h4>Switch to a Fee-Free Bank</h4>
+        <p>Monthly fees, ATM charges — there are completely free alternatives to every traditional bank</p>
+      </div>
+      <div class="tactic">
+        <div class="ico">📊</div>
+        <h4>Check Your Investment Fees</h4>
+        <p>1% vs 0.03% expense ratio — that difference can cost you hundreds of thousands over 30 years</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s5">
+    <div class="quote-mark">"</div>
+    <blockquote>Taxes are the price we pay for a civilized society — but nobody is required to pay more than the law demands.</blockquote>
+    <div class="gold-line"></div>
+    <div class="author">Judge Learned Hand</div>
+  </div>
+
+  <div class="slide" id="s6">
+    <div class="label">Session 7 · Homework</div>
+    <h2>This Week:<br><span>Find the Hidden Money</span></h2>
+    <p class="sub">Three concrete actions — each one could put real money back in your pocket.</p>
+    <div class="hw-list">
+      <div class="hw-item">
+        <div class="hw-num">1</div>
+        <div>
+          <div class="hw-title">Play with the compound interest calculator</div>
+          <div class="hw-desc">Pick one daily habit — coffee, lunch out, anything — and see what it's actually worth at retirement. The number will surprise you.</div>
+        </div>
+      </div>
+      <div class="hw-item">
+        <div class="hw-num">2</div>
+        <div>
+          <div class="hw-title">Talk to your accountant</div>
+          <div class="hw-desc">Ask one question: "Am I taking all the deductions I'm entitled to?" If you don't have an accountant, this is a good time to get one.</div>
+        </div>
+      </div>
+      <div class="hw-item">
+        <div class="hw-num">3</div>
+        <div>
+          <div class="hw-title">Check your employee benefits</div>
+          <div class="hw-desc">Contact HR and ask: Do we have a 401(k) match? An HSA? Stock options? Any benefit I haven't enrolled in yet?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="nav prev" onclick="changeSlide(-1)">‹</button>
+<button class="nav next" onclick="changeSlide(1)">›</button>
+<div class="slide-num" id="dots"></div>
+<div class="hint">← → to navigate</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dotsEl.children[current].classList.add('active');
+  }
+  function changeSlide(dir) { goTo(current + dir); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') changeSlide(1);
+    if (e.key === 'ArrowLeft') changeSlide(-1);
+  });
+  let startX = 0;
+  document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+  });
+</script>
+</body>
+</html>

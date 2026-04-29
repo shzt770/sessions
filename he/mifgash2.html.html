@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מפגש 2 — Thaler Capital Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;700;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --cream: #f5f0e8;
+    --warm-gray: #b8b0a2;
+    --dark2: #1a2a3a;
+    --red-soft: rgba(180,60,60,0.15);
+    --red-border: rgba(180,60,60,0.3);
+    --green-soft: rgba(42,120,80,0.15);
+    --green-border: rgba(42,120,80,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    font-family: 'Heebo', sans-serif;
+    color: var(--cream);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .deck { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 80px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: all; }
+
+  .logo-badge {
+    position: fixed; top: 28px; right: 40px;
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 13px; color: var(--gold);
+    letter-spacing: 1px; opacity: 0.7; z-index: 100;
+  }
+
+  .session-badge {
+    position: fixed; top: 28px; left: 40px;
+    font-size: 11px; letter-spacing: 3px;
+    color: rgba(201,168,76,0.5); text-transform: uppercase; z-index: 100;
+  }
+
+  .slide-num {
+    position: fixed; bottom: 36px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 10px; z-index: 100;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(201,168,76,0.3); cursor: pointer; transition: background 0.3s;
+  }
+  .dot.active { background: var(--gold); }
+
+  .nav {
+    position: fixed; top: 50%; transform: translateY(-50%);
+    background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25);
+    color: var(--gold); width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 20px; transition: all 0.3s; z-index: 100;
+  }
+  .nav:hover { background: rgba(201,168,76,0.25); }
+  .nav.prev { right: 24px; }
+  .nav.next { left: 24px; }
+
+  .label {
+    font-size: 11px; letter-spacing: 4px; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 16px;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+
+  /* SLIDE 1 — הכאב שבחוסר ידיעה */
+  #s1 { background: radial-gradient(ellipse at 40% 60%, #1a2535 0%, var(--navy) 70%); }
+  #s1 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(30px, 4.5vw, 56px);
+    text-align: center; margin-bottom: 16px;
+    color: var(--cream); line-height: 1.2;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s1 h2 span { color: var(--gold); }
+  #s1 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 500px; line-height: 1.7; margin-bottom: 48px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s1 .fear-row {
+    display: flex; gap: 24px; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s1 .fear-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 20px 28px;
+    text-align: center; min-width: 160px;
+  }
+  #s1 .fear-card .ico { font-size: 28px; margin-bottom: 10px; }
+  #s1 .fear-card p { font-size: 13px; color: var(--warm-gray); line-height: 1.5; }
+
+  /* SLIDE 2 — הנתונים לא משקרים */
+  #s2 { background: linear-gradient(150deg, #0d1b2a 0%, #111e2d 100%); }
+  #s2 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(28px, 4vw, 52px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s2 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 480px; line-height: 1.7; margin-bottom: 44px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s2 .pyramid {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s2 .p-level {
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px; font-size: 14px; color: var(--cream);
+    font-weight: 500; gap: 10px; transition: all 0.3s;
+  }
+  #s2 .p-level:hover { transform: scaleX(1.02); }
+  #s2 .p-level.l1 { width: 220px; padding: 14px; background: rgba(201,168,76,0.25); border: 1px solid rgba(201,168,76,0.4); }
+  #s2 .p-level.l2 { width: 320px; padding: 14px; background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.25); }
+  #s2 .p-level.l3 { width: 420px; padding: 14px; background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.15); }
+
+  /* SLIDE 3 — הרגלים קטנים נזק גדול */
+  #s3 { background: radial-gradient(ellipse at 60% 40%, #1a2535 0%, var(--navy) 70%); }
+  #s3 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(28px, 4vw, 52px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s3 h2 span { color: var(--gold); }
+  #s3 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 460px; line-height: 1.7; margin-bottom: 44px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s3 .coffee-table {
+    width: 100%; max-width: 600px;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s3 .ct-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 14px; align-items: center;
+  }
+  #s3 .ct-row.header {
+    font-size: 11px; letter-spacing: 2px; color: var(--gold);
+    text-transform: uppercase; border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  #s3 .ct-row:not(.header):hover { background: rgba(255,255,255,0.03); }
+  #s3 .ct-row .amount { color: var(--gold-light); font-weight: 500; }
+  #s3 .ct-row .damage { color: #e07070; font-weight: 500; }
+  #s3 .ct-total {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    padding: 16px 20px; font-size: 14px; font-weight: 700;
+    background: rgba(201,168,76,0.08); border-radius: 0 0 12px 12px;
+    border: 1px solid rgba(201,168,76,0.15); border-top: none;
+  }
+  #s3 .ct-total .damage { color: #e07070; font-size: 16px; }
+
+  /* SLIDE 4 — הכנסה מול הוצאה */
+  #s4 { background: linear-gradient(135deg, #0d1b2a 0%, #0f2030 100%); }
+  #s4 h2 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(28px, 4vw, 52px);
+    text-align: center; margin-bottom: 14px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+  #s4 .sub {
+    color: var(--warm-gray); font-size: 15px; text-align: center;
+    max-width: 500px; line-height: 1.7; margin-bottom: 44px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  #s4 .timeline {
+    display: flex; gap: 0; align-items: stretch;
+    max-width: 700px; width: 100%;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  #s4 .era {
+    flex: 1; padding: 24px 20px; text-align: center;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  #s4 .era:first-child { border-radius: 14px 0 0 14px; background: rgba(42,100,80,0.1); border-color: rgba(42,100,80,0.2); }
+  #s4 .era:last-child { border-radius: 0 14px 14px 0; background: rgba(180,60,60,0.1); border-color: rgba(180,60,60,0.2); }
+  #s4 .era .year { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; opacity: 0.6; }
+  #s4 .era .ico { font-size: 32px; margin-bottom: 12px; }
+  #s4 .era h3 { font-family: 'Frank Ruhl Libre', serif; font-size: 17px; margin-bottom: 10px; color: var(--cream); }
+  #s4 .era p { font-size: 13px; color: var(--warm-gray); line-height: 1.6; }
+  #s4 .era-divider {
+    display: flex; align-items: center; justify-content: center;
+    width: 50px; background: rgba(255,255,255,0.03);
+    font-size: 20px; color: rgba(201,168,76,0.3);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* SLIDE 5 — QUOTE */
+  #s5 { background: #0a1520; }
+  #s5::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 70%);
+  }
+  #s5 .quote-mark {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 120px; color: rgba(201,168,76,0.12);
+    line-height: 0.8; margin-bottom: -10px;
+    align-self: flex-start; z-index: 1;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+  #s5 blockquote {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(18px, 2.8vw, 32px);
+    font-weight: 400; line-height: 1.65;
+    text-align: center; color: var(--cream);
+    max-width: 680px; position: relative; z-index: 1;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+  #s5 .gold-line {
+    width: 60px; height: 1px;
+    background: var(--gold); opacity: 0.4;
+    margin: 24px auto 0; z-index: 1;
+    animation: fadeUp 0.5s ease 0.4s both;
+  }
+  #s5 .author {
+    margin-top: 16px; font-size: 13px;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold); opacity: 0.8;
+    position: relative; z-index: 1;
+    animation: fadeUp 0.5s ease 0.5s both;
+  }
+
+  .hint {
+    position: fixed; bottom: 28px; right: 40px;
+    font-size: 11px; color: rgba(184,176,162,0.3); letter-spacing: 1px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="logo-badge">THALER CAPITAL MANAGEMENT</div>
+<div class="session-badge">מפגש 2</div>
+
+<div class="deck">
+
+  <!-- SLIDE 1 — לראות זה לא מספיק -->
+  <div class="slide active" id="s1">
+    <div class="label">מפגש 2 · שקף 1</div>
+    <h2>לראות את המספרים<br>זה <span>לא מספיק</span></h2>
+    <p class="sub">רוב האנשים יודעים כמה נכנס. הבעיה היא לא הראייה — היא הפרשנות. מה המספרים אומרים? ולאן הם מובילים?</p>
+    <div class="fear-row">
+      <div class="fear-card">
+        <div class="ico">👁️</div>
+        <p>לראות<br><small style="opacity:0.6">רואים את היתרה</small></p>
+      </div>
+      <div class="fear-card">
+        <div class="ico">📖</div>
+        <p>לקרוא<br><small style="opacity:0.6">מבינים את הדפוס</small></p>
+      </div>
+      <div class="fear-card">
+        <div class="ico">🧭</div>
+        <p>לנתח<br><small style="opacity:0.6">יודעים לאן ממשיכים</small></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 — הנתונים לא משקרים -->
+  <div class="slide" id="s2">
+    <div class="label">מפגש 2 · שקף 2</div>
+    <h2>הנתונים לא משקרים</h2>
+    <p class="sub">לפני שאפשר לשנות כיוון — צריך לדעת איפה עומדים. הנתונים הם לא האויב, הם המפה.</p>
+    <div class="pyramid">
+      <div class="p-level l1">
+        <span>🎯</span>
+        <span>יעדים עתידיים</span>
+      </div>
+      <div class="p-level l2">
+        <span>📊</span>
+        <span>דפוסי הוצאה נוכחיים</span>
+      </div>
+      <div class="p-level l3">
+        <span>📁</span>
+        <span>נתוני עבר — הבסיס לכל שינוי</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 — הרגלים קטנים נזק גדול -->
+  <div class="slide" id="s3">
+    <div class="label">מפגש 2 · שקף 3</div>
+    <h2>הרגלים <span>קטנים</span>,<br>נזק גדול</h2>
+    <p class="sub">$5 ביום מרגיש כלום. לאורך עשור — זה סיפור אחר לגמרי.</p>
+    <div class="coffee-table">
+      <div class="ct-row header">
+        <span>הרגל</span>
+        <span>עלות יומית</span>
+        <span>נזק ב-10 שנים</span>
+      </div>
+      <div class="ct-row">
+        <span>☕ קפה בחוץ</span>
+        <span class="amount">$6</span>
+        <span class="damage">$21,900</span>
+      </div>
+      <div class="ct-row">
+        <span>🥗 אוכל בחוץ</span>
+        <span class="amount">$15</span>
+        <span class="damage">$54,750</span>
+      </div>
+      <div class="ct-row">
+        <span>📱 מנויים שוטים</span>
+        <span class="amount">$8</span>
+        <span class="damage">$29,200</span>
+      </div>
+      <div class="ct-total">
+        <span>סה"כ</span>
+        <span class="amount">$29/יום</span>
+        <span class="damage">$105,850</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 — הכנסה מול הוצאה היסטורית -->
+  <div class="slide" id="s4">
+    <div class="label">מפגש 2 · שקף 4</div>
+    <h2>מעמד הביניים —<br>אז מול היום</h2>
+    <p class="sub">ב-1975 משפחה ממוצעת חסכה 17% מהכנסתה. היום? פחות מ-4%. מה קרה בדרך?</p>
+    <div class="timeline">
+      <div class="era">
+        <div class="year">1970–1990</div>
+        <div class="ico">🏠</div>
+        <h3>תרבות החיסכון</h3>
+        <p>הכנסה > הוצאות<br>חיסכון כברירת מחדל<br>צריכה = יכולת בפועל</p>
+      </div>
+      <div class="era-divider">→</div>
+      <div class="era">
+        <div class="year">2000–היום</div>
+        <div class="ico">💳</div>
+        <h3>תרבות הצריכה</h3>
+        <p>הוצאות > הכנסה<br>אשראי כברירת מחדל<br>צריכה = מה שאני "מגיע לו"</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 — QUOTE -->
+  <div class="slide" id="s5">
+    <div class="quote-mark">"</div>
+    <blockquote>תקציב הוא אומר לכסף שלך לאן ללכת — במקום לתהות לאן הוא הלך.</blockquote>
+    <div class="gold-line"></div>
+    <div class="author">Dave Ramsey</div>
+  </div>
+
+  <!-- SLIDE 6 — שיעורי בית -->
+  <div class="slide" id="s6">
+    <div class="label">מפגש 2 · שיעורי בית</div>
+    <h2 style="font-family:'Frank Ruhl Libre',serif;font-size:clamp(26px,4vw,48px);text-align:center;margin-bottom:14px;animation:fadeUp 0.5s ease 0.2s both;">שבוע <span style="color:var(--gold)">שני</span> של מידע</h2>
+    <p style="color:var(--warm-gray);font-size:15px;text-align:center;max-width:480px;line-height:1.7;margin-bottom:40px;animation:fadeUp 0.5s ease 0.3s both;">עוד שבוע של תצלום — כל שקל נכנס ויוצא. ככל שיש יותר נתונים, התמונה מדויקת יותר.</p>
+    <div style="display:flex;flex-direction:column;gap:14px;max-width:540px;width:100%;animation:fadeUp 0.6s ease 0.4s both;">
+      <div style="display:flex;gap:16px;align-items:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:'Frank Ruhl Libre',serif;font-size:22px;color:var(--gold);opacity:0.6;min-width:28px;">1</div>
+        <div>
+          <div style="font-size:15px;color:var(--cream);margin-bottom:6px;font-weight:500;">המשך לרשום כל הכנסה וכל הוצאה</div>
+          <div style="font-size:13px;color:var(--warm-gray);line-height:1.6;">7 ימים נוספים — אותה שיטה שעבדה בשבוע הראשון. עקביות היא הנכס הכי חשוב כאן.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:'Frank Ruhl Libre',serif;font-size:22px;color:var(--gold);opacity:0.6;min-width:28px;">2</div>
+        <div>
+          <div style="font-size:15px;color:var(--cream);margin-bottom:6px;font-weight:500;">שים לב להוצאות שמפתיעות אותך</div>
+          <div style="font-size:13px;color:var(--warm-gray);line-height:1.6;">אל תשנה אותן — רק סמן אותן. נדבר עליהן במפגש הבא.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:'Frank Ruhl Libre',serif;font-size:22px;color:var(--gold);opacity:0.6;min-width:28px;">3</div>
+        <div>
+          <div style="font-size:15px;color:var(--cream);margin-bottom:6px;font-weight:500;">הנתונים נשמרים במערכת</div>
+          <div style="font-size:13px;color:var(--warm-gray);line-height:1.6;">שני השבועות יחד יחשפו דפוסים — אנחנו נעבד אותם יחד במפגש הבא.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="nav prev" onclick="changeSlide(1)">›</button>
+<button class="nav next" onclick="changeSlide(-1)">‹</button>
+<div class="slide-num" id="dots"></div>
+<div class="hint">← → לניווט</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dotsEl.children[current].classList.add('active');
+  }
+
+  function changeSlide(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') changeSlide(1);
+    if (e.key === 'ArrowRight') changeSlide(-1);
+  });
+
+  let startX = 0;
+  document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 6 — Thaler Capital Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --navy: #0d1b2a; --gold: #c9a84c; --gold-light: #e8c97a; --cream: #f5f0e8; --warm-gray: #b8b0a2; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--navy); font-family: 'Inter', sans-serif; color: var(--cream); overflow: hidden; height: 100vh; width: 100vw; }
+  .deck { width: 100vw; height: 100vh; position: relative; }
+  .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 80px; opacity: 0; pointer-events: none; transition: opacity 0.6s ease; }
+  .slide.active { opacity: 1; pointer-events: all; }
+  .logo-badge { position: fixed; top: 28px; right: 40px; font-family: 'Playfair Display', serif; font-size: 13px; color: var(--gold); letter-spacing: 1px; opacity: 0.7; z-index: 100; }
+  .session-badge { position: fixed; top: 28px; left: 40px; font-size: 11px; letter-spacing: 3px; color: rgba(201,168,76,0.5); text-transform: uppercase; z-index: 100; }
+  .slide-num { position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 100; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(201,168,76,0.3); cursor: pointer; transition: background 0.3s; }
+  .dot.active { background: var(--gold); }
+  .nav { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25); color: var(--gold); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; transition: all 0.3s; z-index: 100; }
+  .nav:hover { background: rgba(201,168,76,0.25); }
+  .nav.prev { left: 24px; }
+  .nav.next { right: 24px; }
+  .hint { position: fixed; bottom: 28px; left: 40px; font-size: 11px; color: rgba(184,176,162,0.3); letter-spacing: 1px; }
+  .label { font-size: 11px; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; animation: fadeUp 0.5s ease 0.1s both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  #s1 { background: radial-gradient(ellipse at 40% 60%, #162030 0%, var(--navy) 70%); }
+  #s1 h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 52px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s1 h2 span { color: var(--gold); }
+  #s1 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 44px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s1 .vision-qs { display: flex; flex-direction: column; gap: 14px; max-width: 580px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s1 .vq { display: flex; gap: 16px; align-items: flex-start; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: 12px; padding: 18px 22px; transition: border-color 0.3s; }
+  #s1 .vq:hover { border-color: rgba(201,168,76,0.35); }
+  #s1 .vq .ico { font-size: 22px; min-width: 28px; }
+  #s1 .vq p { font-size: 14px; color: var(--cream); line-height: 1.6; }
+
+  #s2 { background: linear-gradient(150deg, #0d1b2a 0%, #111e2d 100%); }
+  #s2 h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 52px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s2 h2 span { color: var(--gold); }
+  #s2 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 44px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s2 .sacrifice { display: grid; grid-template-columns: 1fr 60px 1fr; max-width: 660px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s2 .sac-col { padding: 26px 22px; border-radius: 16px; text-align: center; }
+  #s2 .sac-col.today { background: rgba(180,60,60,0.1); border: 1px solid rgba(180,60,60,0.25); }
+  #s2 .sac-col.future { background: rgba(42,120,80,0.12); border: 1px solid rgba(42,120,80,0.3); }
+  #s2 .sac-col .ico { font-size: 32px; margin-bottom: 12px; }
+  #s2 .sac-col h3 { font-family: 'Playfair Display', serif; font-size: 17px; margin-bottom: 10px; color: var(--cream); }
+  #s2 .sac-col p { font-size: 13px; color: var(--warm-gray); line-height: 1.65; }
+  #s2 .divider { display: flex; align-items: center; justify-content: center; font-size: 26px; color: rgba(201,168,76,0.3); }
+
+  #s3 { background: radial-gradient(ellipse at 60% 40%, #162030 0%, var(--navy) 70%); }
+  #s3 h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 52px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s3 h2 span { color: var(--gold); }
+  #s3 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s3 .priority-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; max-width: 660px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s3 .p-card { border-radius: 14px; padding: 22px 18px; text-align: center; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); }
+  #s3 .p-card .ico { font-size: 28px; margin-bottom: 10px; }
+  #s3 .p-card h4 { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--gold); margin-bottom: 8px; }
+  #s3 .p-card p { font-size: 12px; color: var(--warm-gray); line-height: 1.55; }
+  #s3 .p-card.must { border-color: rgba(180,60,60,0.25); background: rgba(180,60,60,0.08); }
+  #s3 .p-card.want { border-color: rgba(201,168,76,0.2); background: rgba(201,168,76,0.06); }
+  #s3 .p-card.cut { border-color: rgba(100,100,100,0.2); background: rgba(100,100,100,0.06); }
+
+  #s4 { background: linear-gradient(160deg, #0d1b2a 0%, #0f2030 100%); }
+  #s4 h2 { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.8vw, 50px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s4 h2 span { color: var(--gold); }
+  #s4 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s4 .math-flow { display: flex; align-items: center; gap: 0; max-width: 720px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s4 .math-box { flex: 1; border-radius: 14px; padding: 22px 16px; text-align: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.12); }
+  #s4 .math-box .ico { font-size: 26px; margin-bottom: 10px; }
+  #s4 .math-box h4 { font-family: 'Playfair Display', serif; font-size: 14px; color: var(--gold); margin-bottom: 6px; }
+  #s4 .math-box p { font-size: 12px; color: var(--warm-gray); line-height: 1.5; }
+  #s4 .math-arrow { font-size: 20px; color: rgba(201,168,76,0.3); padding: 0 8px; flex-shrink: 0; }
+  #s4 .result-box { margin-top: 24px; padding: 18px 28px; background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.25); border-radius: 14px; text-align: center; max-width: 560px; width: 100%; animation: fadeUp 0.5s ease 0.5s both; }
+  #s4 .result-box p { font-size: 14px; color: var(--cream); line-height: 1.6; }
+  #s4 .result-box strong { color: var(--gold-light); }
+
+  #s5 { background: radial-gradient(ellipse at 45% 55%, #162030 0%, var(--navy) 70%); }
+  #s5 h2 { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.8vw, 50px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s5 h2 span { color: var(--gold); }
+  #s5 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s5 .emergency-calc { display: flex; flex-direction: column; gap: 12px; max-width: 560px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s5 .calc-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 14px 20px; }
+  #s5 .calc-row span { font-size: 14px; color: var(--warm-gray); }
+  #s5 .calc-row .val { color: var(--cream); font-weight: 500; }
+  #s5 .calc-total { display: flex; justify-content: space-between; align-items: center; background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); border-radius: 10px; padding: 16px 20px; }
+  #s5 .calc-total span { font-size: 15px; color: var(--cream); font-weight: 600; }
+  #s5 .calc-total .val { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold); }
+
+  #s6 { background: linear-gradient(150deg, #0d1b2a 0%, #0f2233 100%); }
+  #s6 h2 { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.8vw, 50px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s6 h2 span { color: var(--gold); }
+  #s6 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 500px; line-height: 1.7; margin-bottom: 40px; font-style: italic; animation: fadeUp 0.5s ease 0.3s both; }
+  #s6 .build-steps { display: flex; flex-direction: column; gap: 12px; max-width: 560px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s6 .step { display: flex; gap: 16px; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.12); border-radius: 12px; padding: 16px 20px; transition: border-color 0.3s; }
+  #s6 .step:hover { border-color: rgba(201,168,76,0.3); }
+  #s6 .step .num { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--gold); opacity: 0.5; min-width: 28px; }
+  #s6 .step p { font-size: 14px; color: var(--cream); line-height: 1.6; }
+  #s6 .step p span { color: var(--gold-light); font-weight: 500; }
+
+  #s7 { background: #0a1520; }
+  #s7::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 70%); }
+  #s7 .quote-mark { font-family: 'Playfair Display', serif; font-size: 120px; color: rgba(201,168,76,0.12); line-height: 0.8; margin-bottom: -10px; align-self: flex-start; z-index: 1; animation: fadeUp 0.5s ease 0.1s both; }
+  #s7 blockquote { font-family: 'Playfair Display', serif; font-size: clamp(18px, 2.8vw, 32px); font-weight: 400; line-height: 1.65; text-align: center; color: var(--cream); max-width: 680px; position: relative; z-index: 1; animation: fadeUp 0.6s ease 0.3s both; }
+  #s7 .gold-line { width: 60px; height: 1px; background: var(--gold); opacity: 0.4; margin: 24px auto 0; z-index: 1; }
+  #s7 .author { margin-top: 16px; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); opacity: 0.8; position: relative; z-index: 1; animation: fadeUp 0.5s ease 0.5s both; }
+
+  #s8 { background: radial-gradient(ellipse at 50% 40%, #162030 0%, var(--navy) 70%); }
+  #s8 h2 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 3.8vw, 46px); text-align: center; margin-bottom: 14px; animation: fadeUp 0.5s ease 0.2s both; }
+  #s8 h2 span { color: var(--gold); }
+  #s8 .sub { color: var(--warm-gray); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.5s ease 0.3s both; }
+  #s8 .hw-list { display: flex; flex-direction: column; gap: 14px; max-width: 540px; width: 100%; animation: fadeUp 0.6s ease 0.4s both; }
+  #s8 .hw-item { display: flex; gap: 16px; align-items: flex-start; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: 12px; padding: 18px 22px; }
+  #s8 .hw-num { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold); opacity: 0.6; min-width: 28px; }
+  #s8 .hw-title { font-size: 15px; color: var(--cream); margin-bottom: 6px; font-weight: 500; }
+  #s8 .hw-desc { font-size: 13px; color: var(--warm-gray); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="logo-badge">THALER CAPITAL MANAGEMENT</div>
+<div class="session-badge">Session 6</div>
+
+<div class="deck">
+
+  <div class="slide active" id="s1">
+    <div class="label">Session 6 · Slide 1</div>
+    <h2>What Does Your<br><span>Ideal Day at 65 Look Like?</span></h2>
+    <p class="sub">Before we touch a single number — let's get clear on what we're actually building toward. The money is the tool. This is the goal.</p>
+    <div class="vision-qs">
+      <div class="vq">
+        <div class="ico">☀️</div>
+        <p>Where do you wake up? Who's there? What does the first hour of your day look like?</p>
+      </div>
+      <div class="vq">
+        <div class="ico">💼</div>
+        <p>Are you still working? What does that look like — because you want to, not because you have to?</p>
+      </div>
+      <div class="vq">
+        <div class="ico">👨‍👩‍👧‍👦</div>
+        <p>What can you give your kids and grandkids that you can't give them today?</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s2">
+    <div class="label">Session 6 · Slide 2</div>
+    <h2>What You Give Up Today<br>Is a <span>Gift to Your Future Self</span></h2>
+    <p class="sub">Every financial decision is really a conversation between who you are now and who you'll be later.</p>
+    <div class="sacrifice">
+      <div class="sac-col today">
+        <div class="ico">⏳</div>
+        <h3>The Trade-Off Today</h3>
+        <p>Less spending on things you want right now.<br>A small, conscious, chosen discomfort.<br>Not cutting life — cutting waste.</p>
+      </div>
+      <div class="divider">→</div>
+      <div class="sac-col future">
+        <div class="ico">🎁</div>
+        <h3>The Gift in the Future</h3>
+        <p>The freedom to choose — not the obligation to work.<br>Security for whatever comes.<br>Your future self says thank you.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s3">
+    <div class="label">Session 6 · Slide 3</div>
+    <h2>Sort Your Spending —<br><span>Don't Judge It</span></h2>
+    <p class="sub">Three honest questions for every expense on your list.</p>
+    <div class="priority-grid">
+      <div class="p-card must">
+        <div class="ico">🔴</div>
+        <h4>Must Have</h4>
+        <p>Life gets meaningfully worse without it. No debate.</p>
+      </div>
+      <div class="p-card want">
+        <div class="ico">🟡</div>
+        <h4>Nice to Have</h4>
+        <p>Adds real value — but can be adjusted.</p>
+      </div>
+      <div class="p-card cut">
+        <div class="ico">⚪</div>
+        <h4>Worth Questioning</h4>
+        <p>Not sure it's adding much — worth a closer look.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s4">
+    <div class="label">Session 6 · Slide 4</div>
+    <h2>The Math Behind<br><span>Your Retirement</span></h2>
+    <p class="sub">The system takes your actual data and shows you exactly where you're headed — and what it takes to get where you want to go.</p>
+    <div class="math-flow">
+      <div class="math-box">
+        <div class="ico">📊</div>
+        <h4>Your Current Data</h4>
+        <p>4 weeks of real income and expenses</p>
+      </div>
+      <div class="math-arrow">→</div>
+      <div class="math-box">
+        <div class="ico">🎯</div>
+        <h4>Your Retirement Target</h4>
+        <p>Age, lifestyle, monthly spending goal</p>
+      </div>
+      <div class="math-arrow">→</div>
+      <div class="math-box">
+        <div class="ico">💡</div>
+        <h4>The Gap</h4>
+        <p>How much to save each month to get there</p>
+      </div>
+    </div>
+    <div class="result-box">
+      <p>This isn't a forecast — it's a <strong>roadmap</strong>. The numbers update as you progress.</p>
+    </div>
+  </div>
+
+  <div class="slide" id="s5">
+    <div class="label">Session 6 · Slide 5</div>
+    <h2>Your Emergency Fund —<br><span>The Exact Number</span></h2>
+    <p class="sub">Not a round number you picked — a precise target calculated from your actual life.</p>
+    <div class="emergency-calc">
+      <div class="calc-row">
+        <span>Housing + utilities</span>
+        <span class="val">Monthly essential expense</span>
+      </div>
+      <div class="calc-row">
+        <span>Basic groceries</span>
+        <span class="val">Monthly essential expense</span>
+      </div>
+      <div class="calc-row">
+        <span>Transportation to work</span>
+        <span class="val">Monthly essential expense</span>
+      </div>
+      <div class="calc-row">
+        <span>Essential insurance</span>
+        <span class="val">Monthly essential expense</span>
+      </div>
+      <div class="calc-total">
+        <span>Emergency Fund Target (3–6 months)</span>
+        <span class="val">X × 3 to X × 6</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s6">
+    <div class="label">Session 6 · Slide 6</div>
+    <h2>Building <span>Your Budget</span></h2>
+    <p class="sub">"Not someone else's template — numbers that come directly from how you actually live"</p>
+    <div class="build-steps">
+      <div class="step">
+        <div class="num">1</div>
+        <p>We go through <span>all 4 weeks together</span> — what's essential, what's flexible, what's worth cutting</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <p>We set <span>your percentages</span> — not the 50/30/20 that works for someone else</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <p>We set a <span>monthly savings amount</span> that actually gets you to your retirement goal</p>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <p>We set up <span>an automatic transfer</span> — so the saving happens before you can spend it</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s7">
+    <div class="quote-mark">"</div>
+    <blockquote>A plan without action is just a dream. Action without a plan is just chaos.</blockquote>
+    <div class="gold-line"></div>
+    <div class="author">Winston Churchill</div>
+  </div>
+
+  <div class="slide" id="s8">
+    <div class="label">Session 6 · Homework</div>
+    <h2>This Week:<br><span>Put the Plan Into Motion</span></h2>
+    <p class="sub">The most important week of the course. This is where it starts to become real.</p>
+    <div class="hw-list">
+      <div class="hw-item">
+        <div class="hw-num">1</div>
+        <div>
+          <div class="hw-title">Start splitting your money across the three accounts</div>
+          <div class="hw-desc">Using the percentages we set today. Set up an automatic transfer so it happens on payday — no willpower required.</div>
+        </div>
+      </div>
+      <div class="hw-item">
+        <div class="hw-num">2</div>
+        <div>
+          <div class="hw-title">Write two lists — what you're willing to cut and what matters to you</div>
+          <div class="hw-desc">Keep them separate. One is what you can let go of. The other is what you genuinely want to protect.</div>
+        </div>
+      </div>
+      <div class="hw-item">
+        <div class="hw-num">3</div>
+        <div>
+          <div class="hw-title">Have the conversation with your spouse or partner</div>
+          <div class="hw-desc">Not a negotiation — a conversation. Find out where you agree and where you need to find a balance together.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="nav prev" onclick="changeSlide(-1)">‹</button>
+<button class="nav next" onclick="changeSlide(1)">›</button>
+<div class="slide-num" id="dots"></div>
+<div class="hint">← → to navigate</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dotsEl.children[current].classList.add('active');
+  }
+  function changeSlide(dir) { goTo(current + dir); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') changeSlide(1);
+    if (e.key === 'ArrowLeft') changeSlide(-1);
+  });
+  let startX = 0;
+  document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+  });
+</script>
+</body>
+</html>
